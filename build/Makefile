@@ -191,7 +191,7 @@
 # of "-DSIM_FIX" to the DEFINES.  This should be enabled by default
 # and eventually will not require the symbol definition
 ################################################################
-DEFINES =  -DFILESYS_STUB -DRDATA -DSIM_FIX -DCHANGED
+DEFINES =  -DFILESYS_STUB -DRDATA -DSIM_FIX -DCHANGED -DASSIGNMENT0
 
 #####################################################################
 #
@@ -218,81 +218,7 @@ PROGRAM = nachos
 # See the instructions at the top of the file for more information.
 #
 
-LIB_H = ../lib/bitmap.h\
-	../lib/copyright.h\
-	../lib/debug.h\
-	../lib/hash.h\
-	../lib/libtest.h\
-	../lib/list.h\
-	../lib/sysdep.h\
-	../lib/table.h\
-	../lib/utility.h
-
-LIB_C = ../lib/bitmap.cc\
-	../lib/debug.cc\
-	../lib/hash.cc\
-	../lib/libtest.cc\
-	../lib/list.cc\
-	../lib/sysdep.cc
-
-LIB_O = bitmap.o debug.o libtest.o sysdep.o
-
-
-MACHINE_H = ../machine/callback.h\
-	../machine/interrupt.h\
-	../machine/stats.h\
-	../machine/timer.h\
-	../machine/console.h\
-	../machine/machine.h\
-	../machine/mipssim.h\
-	../machine/translate.h\
-	../machine/network.h\
-	../machine/disk.h
-
-MACHINE_C = ../machine/interrupt.cc\
-	../machine/stats.cc\
-	../machine/timer.cc\
-	../machine/console.cc\
-	../machine/machine.cc\
-	../machine/mipssim.cc\
-	../machine/translate.cc\
-	../machine/network.cc\
-	../machine/disk.cc
-
-MACHINE_O = interrupt.o stats.o timer.o console.o machine.o mipssim.o\
-	translate.o network.o disk.o
-
-THREAD_H = ../threads/alarm.h\
-	../threads/kernel.h\
-	../threads/main.h\
-	../threads/scheduler.h\
-	../threads/switch.h\
-	../threads/synch.h\
-	../threads/synchlist.h\
-	../threads/thread.h
-
-THREAD_C = ../threads/alarm.cc\
-	../threads/kernel.cc\
-	../threads/main.cc\
-	../threads/scheduler.cc\
-	../threads/synch.cc\
-	../threads/synchlist.cc\
-	../threads/thread.cc
-
-THREAD_O = alarm.o kernel.o main.o scheduler.o synch.o thread.o
-
-USERPROG_H = ../userprog/addrspace.h\
-	../userprog/syscall.h\
-	../userprog/synchconsole.h\
-	../userprog/noff.h
-
-USERPROG_C = ../userprog/addrspace.cc\
-	../userprog/exception.cc\
-	../userprog/synchconsole.cc
-
-USERPROG_O = addrspace.o exception.o synchconsole.o
-
-FILESYS_H =../filesys/directory.h \
+FILESYS_H =../filesys/directory.h\
 	../filesys/filehdr.h\
 	../filesys/filesys.h \
 	../filesys/openfile.h\
@@ -302,17 +228,98 @@ FILESYS_H =../filesys/directory.h \
 FILESYS_C =../filesys/directory.cc\
 	../filesys/filehdr.cc\
 	../filesys/filesys.cc\
-	../filesys/pbitmap.cc\
 	../filesys/openfile.cc\
+	../filesys/pbitmap.cc\
 	../filesys/synchdisk.cc\
 
-FILESYS_O =directory.o filehdr.o filesys.o pbitmap.o openfile.o synchdisk.o
+FILESYS_O = directory.o filehdr.o filesys.o pbitmap.o openfile.o synchdisk.o
 
+LIB_H = ../lib/bitmap.h\
+	../lib/copyright.h\
+	../lib/debug.h\
+	../lib/hash.h\
+	../lib/libtest.h\
+	../lib/list.h\
+	../lib/sysdep.h\
+	../lib/table.h\
+	../lib/utility.h\
+	../lib/table.h
+	
+LIB_C = ../lib/bitmap.cc\
+	../lib/debug.cc\
+	../lib/hash.cc\
+	../lib/libtest.cc\
+	../lib/list.cc\
+	../lib/sysdep.cc\
+	../lib/table.cc
+
+LIB_O = bitmap.o debug.o libtest.o sysdep.o table.o
+
+
+MACHINE_H = ../machine/callback.h\
+	../machine/console.h\
+	../machine/disk.h\
+	../machine/interrupt.h\
+	../machine/machine.h\
+	../machine/mipssim.h\
+	../machine/network.h\
+	../machine/stats.h\
+	../machine/timer.h\
+	../machine/translate.h
+
+MACHINE_C = ../machine/console.cc\
+	../machine/disk.cc\
+	../machine/interrupt.cc\
+	../machine/machine.cc\
+	../machine/mipssim.cc\
+	../machine/network.cc\
+	../machine/stats.cc\
+	../machine/timer.cc\
+	../machine/translate.cc
+
+MACHINE_O = interrupt.o stats.o timer.o console.o machine.o mipssim.o\
+	translate.o network.o disk.o
+	
 NETWORK_H = ../network/post.h
 
 NETWORK_C = ../network/post.cc
 
 NETWORK_O = post.o
+
+THREAD_H = ../threads/alarm.h\
+	../threads/hello.h\
+	../threads/kernel.h\
+	../threads/main.h\
+	../threads/scheduler.h\
+	../threads/switch.h\
+	../threads/synch.h\
+	../threads/synchlist.h\
+	../threads/system.h\
+	../threads/thread.h
+
+
+THREAD_C = ../threads/alarm.cc\
+	../threads/hello.cc\
+	../threads/kernel.cc\
+	../threads/main.cc\
+	../threads/scheduler.cc\
+	../threads/synch.cc\
+	../threads/synchlist.cc\
+	../threads/system.cc\
+	../threads/thread.cc
+
+THREAD_O = alarm.o hello.o kernel.o main.o scheduler.o synch.o synchlist.o system.o thread.o
+
+USERPROG_H = ../userprog/addrspace.h\
+	../userprog/noff.h\
+	../userprog/synchconsole.h\
+	../userprog/syscall.h
+
+USERPROG_C = ../userprog/addrspace.cc\
+	../userprog/exception.cc\
+	../userprog/synchconsole.cc
+
+USERPROG_O = addrspace.o exception.o synchconsole.o
 
 ##################################################################
 #  You probably don't want to change anything below this point in

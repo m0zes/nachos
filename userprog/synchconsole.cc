@@ -1,119 +1,98 @@
 // synchconsole.cc 
-//	Routines providing synchronized access to the keyboard 
-//	and console display hardware devices.
+//	Routines to synchronously access the console.  The physical console 
+//	is an asynchronous device (console requests return immediately, and
+//	an interrupt happens later on).  This is a layer on top of
+//	the console providing a synchronous interface (requests wait until
+//	the request completes).
 //
-// Copyright (c) 1992-1996 The Regents of the University of California.
+//	Use a semaphore to synchronize the interrupt handlers with the
+//	pending requests.  And, because the physical console can only
+//	handle one operation at a time, use a lock to enforce mutual
+//	exclusion.
+//
+// Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
 #include "synchconsole.h"
 
-//----------------------------------------------------------------------
-// SynchConsoleInput::SynchConsoleInput
-//      Initialize synchronized access to the keyboard
-//
-//      "inputFile" -- if NULL, use stdin as console device
-//              otherwise, read from this file
-//----------------------------------------------------------------------
+#if defined(CHANGED) && defined(USER_PROGRAM)
 
-SynchConsoleInput::SynchConsoleInput(char *inputFile)
+static void
+getCharReady(int arg)
 {
-    consoleInput = new ConsoleInput(inputFile, this);
-    lock = new Lock("console in");
-    waitFor = new Semaphore("console in", 0);
+    SynchConsole* cns = (SynchConsole *)arg;
+
+    cns->GetCharReady();
+}
+
+static void
+putCharDone(int arg)
+{
+    SynchConsole* cns = (SynchConsole *)arg;
+
+    cns->PutCharDone();
 }
 
 //----------------------------------------------------------------------
-// SynchConsoleInput::~SynchConsoleInput
-//      Deallocate data structures for synchronized access to the keyboard
+// SynchConsole::SynchConsole
+// 	Initialize the synchronous interface to the physical console, in turn
+//	initializing the physical console.
+//
+//	"name" -- UNIX file name to be used as storage for the console data
+//	   (usually, "DISK")
 //----------------------------------------------------------------------
 
-SynchConsoleInput::~SynchConsoleInput()
-{ 
-    delete consoleInput; 
-    delete lock; 
-    delete waitFor;
+SynchConsole::SynchConsole(char* name, char *in, char *out)
+{
+    putCharSemaphore = new Semaphore("synch console put char", 0);
+    getCharSemaphore = new Semaphore("synch console get char", 0);
+    putCharLock = new Lock("synch console put char lock");
+    getCharLock = new Lock("synch console get char lock");
+    console = new Console(in, out, getCharReady, putCharDone, (int) this);
 }
 
 //----------------------------------------------------------------------
-// SynchConsoleInput::GetChar
-//      Read a character typed at the keyboard, waiting if necessary.
+// SynchConsole::~SynchConsole
+// 	De-allocate data structures needed for the synchronous console
+//	abstraction.
 //----------------------------------------------------------------------
+
+SynchConsole::~SynchConsole()
+{
+    delete console;
+    delete putCharSemaphore;
+    delete getCharSemaphore;
+    delete putCharLock;
+    delete getCharLock;
+}
 
 char
-SynchConsoleInput::GetChar()
-{
-    char ch;
-
-    lock->Acquire();
-    waitFor->P();	// wait for EOF or a char to be available.
-    ch = consoleInput->GetChar();
-    lock->Release();
-    return ch;
+SynchConsole::GetChar() {
+  char ret;
+  getCharLock->Acquire();
+  getCharSemaphore->P();
+  ret = console->GetChar();
+  getCharLock->Release();
+  return(ret);
 }
 
-//----------------------------------------------------------------------
-// SynchConsoleInput::CallBack
-//      Interrupt handler called when keystroke is hit; wake up
-//	anyone waiting.
-//----------------------------------------------------------------------
+void 
+SynchConsole::GetCharReady() {
+  getCharSemaphore->V();
+}
 
 void
-SynchConsoleInput::CallBack()
-{
-    waitFor->V();
+SynchConsole::PutChar(char ch) {
+  putCharLock->Acquire();
+  console->PutChar(ch);
+  putCharSemaphore->P();
+  putCharLock->Release();
 }
 
-//----------------------------------------------------------------------
-// SynchConsoleOutput::SynchConsoleOutput
-//      Initialize synchronized access to the console display
-//
-//      "outputFile" -- if NULL, use stdout as console device
-//              otherwise, read from this file
-//----------------------------------------------------------------------
-
-SynchConsoleOutput::SynchConsoleOutput(char *outputFile)
-{
-    consoleOutput = new ConsoleOutput(outputFile, this);
-    lock = new Lock("console out");
-    waitFor = new Semaphore("console out", 0);
+void 
+SynchConsole::PutCharDone() {
+  putCharSemaphore->V();
 }
-
-//----------------------------------------------------------------------
-// SynchConsoleOutput::~SynchConsoleOutput
-//      Deallocate data structures for synchronized access to the keyboard
-//----------------------------------------------------------------------
-
-SynchConsoleOutput::~SynchConsoleOutput()
-{ 
-    delete consoleOutput; 
-    delete lock; 
-    delete waitFor;
-}
-
-//----------------------------------------------------------------------
-// SynchConsoleOutput::PutChar
-//      Write a character to the console display, waiting if necessary.
-//----------------------------------------------------------------------
-
-void
-SynchConsoleOutput::PutChar(char ch)
-{
-    lock->Acquire();
-    consoleOutput->PutChar(ch);
-    waitFor->P();
-    lock->Release();
-}
-
-//----------------------------------------------------------------------
-// SynchConsoleOutput::CallBack
-//      Interrupt handler called when it's safe to send the next 
-//	character can be sent to the display.
-//----------------------------------------------------------------------
-
-void
-SynchConsoleOutput::CallBack()
-{
-    waitFor->V();
-}
+#endif

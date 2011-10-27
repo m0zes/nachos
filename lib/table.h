@@ -1,234 +1,61 @@
-//******************************************************************************
+// table.h 
+//	Data structures to manage LISP-like tables.  
 //
-//  Name:       table.h
+//      As in LISP, a table can contain any type of data structure
+//	as an item on the table: thread control blocks, 
+//	pending interrupts, etc.  That is why each item is a "void *",
+//	or in other words, a "pointers to anything".
 //
-//  Purpose:    Header file for the Table class.
-//
-//******************************************************************************
-//  Copyright (c) 2004, Dominic Gelinas.  All Rights Reserved.
-//******************************************************************************
-//
-//              mm/dd/yy  fml  Comment
-//  Revisions:  09/27/04  d g  Created.
-//
-//******************************************************************************
+// Copyright (c) 1992-1993 The Regents of the University of California.
+// All rights reserved.  See copyright.h for copyright notice and limitation 
+// of liability and disclaimer of warranty provisions.
 
+#if defined(CHANGED) && defined(USER_PROGRAM)
 #ifndef TABLE_H
 #define TABLE_H
 
-//******************************************************************************
-//
-//  INCLUDES
-//
-//******************************************************************************
+#include "copyright.h"
+#include "utility.h"
 
-#include <map>
+// The following class defines a "table element" -- which is
+// used to keep track of one item on a table.  It is equivalent to a
+// LISP cell, with a "car" ("next") pointing to the next element on the table,
+// and a "cdr" ("item") pointing to the item on the table.
+//
+// Internal data structures kept public so that Table operations can
+// access them directly.
 
-//******************************************************************************
-//
-//  CLASS DEFINITION
-//
-//******************************************************************************
+class TableElement {
+   public:
+     TableElement(void *itemPtr, int sortKey);	// initialize a table element
 
-//******************************************************************************
+     TableElement *next;		// next element on table, 
+				// NULL if this is the last
+     int key;		    	// priority, for a sorted table
+     void *item; 	    	// pointer to item on the table
+};
+
+// The following class defines a "table" -- a singly linked table of
+// table elements, each of which points to a single item on the table.
 //
-//  Name:       Table
-//
-//  Purpose:    This class is an implementation of a table that maps unique
-//              integer keys to objects.
-//
-//******************************************************************************
-template< class T >
+// By using the "Sorted" functions, the table can be kept in sorted
+// in increasing order by "key" in TableElement.
+
 class Table {
+  public:
+    Table();			// initialize the table
+    ~Table();			// de-allocate the table
+    int Insert(void *item);
+    void *Lookup(int sortKey);
+    void *Extract(int sortKey);
+    void *Remove(int *sortKey);
+    bool IsEmpty();		// is the table empty? 
 
-//******************************************************************************
-//
-//  TYPE DEFINITIONS
-//
-//******************************************************************************
-
- private:
-    typedef std::map< int, T > Table_Map_t ;
-
- private:
-    typedef typename Table_Map_t::const_iterator Table_Map_Const_Iter_t ;
-
- private:
-    typedef typename Table_Map_t::iterator Table_Map_Iter_t ;
- 
- private:
-    typedef std::pair< int, T > Table_Map_Pair_t ;
-
-//******************************************************************************
-//
-//  MEMBER FUNCTIONS
-//
-//******************************************************************************
-
-//******************************************************************************
-//
-//  Name:       Table
-//
-//  Purpose:    Constructor
-//
-//  Parameters: base - the first key to hand out, default = 0
-//
-//  Returns:    Nothing
-//
-//******************************************************************************
- public:
-    Table(
-        int base = 0
-    ) ;
-
-
-//******************************************************************************
-//
-//  Name:       Table
-//
-//  Purpose:    Destructor
-//
-//  Parameters: None
-//
-//  Returns:    Nothing
-//
-//******************************************************************************
- public:
-    virtual
-    ~Table( void ) ;
-
-
-//******************************************************************************
-//
-//  Name:       Extract
-//
-//  Purpose:    Looks up and removes an item in the table.
-//
-//  Parameters: key - the key to use for the lookup
-//              item - the return parameter for the item found
-//
-//  Returns:    true  - if the key and item were found and removed
-//              false - if the key and item were not found and not removed
-//
-//******************************************************************************
- public:
-    bool
-    Extract(
-        int key,
-        T& item
-    ) ;
-
-
-//******************************************************************************
-//
-//  Name:       Insert
-//
-//  Purpose:    Inserts an item in the table.
-//
-//  Parameters: key - the return parameter for the key paired with the item
-//              item - the item to insert into the table
-//
-//  Returns:    true  - if the item was inserted
-//              false - if the item was not inserted
-//
-//******************************************************************************
- public:
-    bool
-    Insert(
-        int& key,
-        const T& item
-    ) ;
-
-
-//******************************************************************************
-//
-//  Name:       Is_Empty
-//
-//  Purpose:    Checks if the table is empty.
-//
-//  Parameters: None
-//
-//  Returns:    true  - if the table is empty
-//              false - if the table is not empty
-//
-//******************************************************************************
- public:
-    bool
-    Is_Empty( void ) const ;
-
-
-//******************************************************************************
-//
-//  Name:       Lookup
-//
-//  Purpose:    Looks up an item in the table.
-//
-//  Parameters: key - the key to use for the lookup
-//              item - the return parameter for the item found
-//
-//  Returns:    true  - if the key and item were found
-//              false - if the key and item were not found
-//
-//******************************************************************************
- public:
-    bool
-    Lookup(
-        int key,
-        T& item
-    ) const ;
-
-
-//******************************************************************************
-//
-//  Name:       Remove
-//
-//  Purpose:    Removes the first item in the table.
-//
-//  Parameters: key - the return parameter for the key removed
-//              item - the return parameter for the item removed
-//
-//  Returns:    true  - if the key and item were removed
-//              false - if there were no keys and items to remove
-//
-//******************************************************************************
- public:
-    bool
-    Remove(
-        int& key,
-        T& item
-    ) ;
-
-
-//******************************************************************************
-//
-//  MEMBER VARIABLES
-//
-//******************************************************************************
-
-//******************************************************************************
-//
-//  Name:       Table_Map
-//
-//  Purpose:    The map from keys to objects.
-//
-//******************************************************************************
- private:
-    Table_Map_t Table_Map ;
-
-
-//******************************************************************************
-//
-//  Name:       Current_Key
-//
-//  Purpose:    The next key to hand out for insertion.
-//
-//******************************************************************************
- private:
-    int Current_Key ;
-
-
-} ;
-
-#include "table.tpl"
+  private:
+    TableElement *first;  	// Head of the table, NULL if table is empty
+    TableElement *last;		// Last element of table
+    int currentKey;
+};
 
 #endif // TABLE_H
+#endif

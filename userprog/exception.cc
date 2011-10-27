@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "main.h"
 #include "syscall.h"
+#include "system.h"
 
 void ExceptionHalt() {
     kernel->interrupt->Halt();
@@ -32,6 +33,69 @@ void ExceptionHalt() {
 int ExceptionAdd(int op1, int op2) {
     return ( op1 + op2 );
 }
+#if defined(CHANGED) && defined(USER_PROGRAM)
+void ExceptionExit(int n) {
+  printf("Exit(%d)\n", n);
+  currentThread->Exit(n, systemLock);
+  systemLock->Release();
+  currentThread->Finish();
+  ASSERTNOTREACHED();
+}
+
+void ForkExec(int dummy) { 
+  AddrSpace *space = currentThread->space;
+
+  space->InitRegisters();             // set the initial register values
+  space->RestoreState();              // load page table register
+ 
+  machine->Run();                     // jump to the user progam
+  ASSERT(FALSE);                      // machine->Run never returns;
+                                        // the address space exits
+                                        // by doing the syscall "exit"
+}
+
+#define SizeExceptionFilename 64
+
+int 
+ExceptionExec(int fn) { 
+  Thread *t;
+  bool failed;
+  char filename[SizeExceptionFilename];
+  int ret;
+  if (!(currentThread->space->ReadString(fn, filename, SizeExceptionFilename))) { 
+    printf("Exec: Unable to read filename at address %x\n", fn);
+    return(0);
+  } 
+  filename[SizeExceptionFilename - 1] = '\0';
+  OpenFile *executable = fileSystem->Open(filename);
+  AddrSpace *space;
+  if (executable == NULL) { 
+    printf("Exec: Unable to open file %s\n", filename);
+    return(0);
+  }
+  space = new AddrSpace(executable, &failed);
+  delete executable;
+  if (failed) { 
+    delete space;
+    printf("Exec: Unable to read in executable for file %s\n", filename);
+    return(0);
+  } 
+  t = new Thread("Exec Thread", &ret);
+  t->space = space;
+  t->Fork(ForkExec, 0);
+  return(ret);
+}
+
+int ExceptionJoin(int id) { 
+  Thread *t;
+  t = (Thread *) (threadTable->Lookup(id));
+  if (t == NULL) { 
+    return(0);
+  }
+  return(currentThread->Join(t, systemLock));
+}
+
+#endif
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -63,6 +127,7 @@ ExceptionHandler(ExceptionType which)
 
     DEBUG(dbgSys, "Received Exception " << which << " type: " << type << "\n");
 
+#if defined(CHANGED) && defined(USER_PROGRAM)
     switch (which) {
         case SyscallException:
             switch(type) {
@@ -112,6 +177,11 @@ ExceptionHandler(ExceptionType which)
 
                     break;
 
+		case SC_Exit:
+		    DEBUG(dbgSys, "Exit due system exit due to " << kernel->machine->ReadRegister(4) << endl);
+		    ExceptionExit(kernel->machine->ReadRegister(4));
+		    break;
+
                 default:
                     cerr << "Unexpected system call " << type << "\n";
                     break;
@@ -123,3 +193,4 @@ ExceptionHandler(ExceptionType which)
     }
     ASSERTNOTREACHED();
 }
+#endif

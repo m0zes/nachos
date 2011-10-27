@@ -30,7 +30,7 @@
 //	We must first allocate a data structure for it: "t = new Thread".
 //	Only then can we do the fork: "t->fork(f, arg)".
 //
-// Copyright (c) 1992-1996 The Regents of the University of California.
+// Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
 
@@ -39,29 +39,31 @@
 
 #include "copyright.h"
 #include "utility.h"
-#include "sysdep.h"
+#if defined(CHANGED) && defined(USER_PROGRAM)
+#include "synch.h"
+#endif
 
+#ifdef USER_PROGRAM
 #include "machine.h"
 #include "addrspace.h"
+#endif
 
 // CPU register state to be saved on context switch.  
-// The x86 needs to save only a few registers, 
-// SPARC and MIPS needs to save 10 registers, 
-// the Snake needs 18,
-// and the RS6000 needs to save 75 (!)
-// For simplicity, I just take the maximum over all architectures.
-
-#define MachineStateSize 75 
+// The SPARC and MIPS only need 10 registers, but the Snake needs 18.
+// For simplicity, this is just the max over all architectures.
+#define MachineStateSize 18 
 
 
 // Size of the thread's private execution stack.
 // WATCH OUT IF THIS ISN'T BIG ENOUGH!!!!!
-const int StackSize = (8 * 1024);	// in words
+#define StackSize	(4 * 1024)	// in words
 
 
 // Thread state
 enum ThreadStatus { JUST_CREATED, RUNNING, READY, BLOCKED };
 
+// external function, dummy routine whose sole job is to call Thread::Print
+extern void ThreadPrint(int arg);	 
 
 // The following class defines a "thread control block" -- which
 // represents a single thread of execution.
@@ -78,8 +80,8 @@ class Thread {
   private:
     // NOTE: DO NOT CHANGE the order of these first two members.
     // THEY MUST be in this position for SWITCH to work.
-    int *stackTop;			 // the current stack pointer
-    void *machineState[MachineStateSize];  // all registers except for stackTop
+    int* stackTop;			 // the current stack pointer
+    int machineState[MachineStateSize];  // all registers except for stackTop
 
   public:
     Thread(char* debugName);		// initialize a Thread 
@@ -90,34 +92,55 @@ class Thread {
 
     // basic thread operations
 
-    void Fork(VoidFunctionPtr func, void *arg); 
-    				// Make thread run (*func)(arg)
-    void Yield();  		// Relinquish the CPU if any 
-				// other thread is runnable
-    void Sleep(bool finishing); // Put the thread to sleep and 
-				// relinquish the processor
-    void Begin();		// Startup code for the thread	
-    void Finish();  		// The thread is done executing
+    void Fork(VoidFunctionPtr func, int arg); 	// Make thread run (*func)(arg)
+    void Yield();  				// Relinquish the CPU if any 
+						// other thread is runnable
+    void Sleep();  				// Put the thread to sleep and 
+						// relinquish the processor
+    void Finish();  				// The thread is done executing
     
-    void CheckOverflow();   	// Check if thread stack has overflowed
+    void CheckOverflow();   			// Check if thread has 
+						// overflowed its stack
     void setStatus(ThreadStatus st) { status = st; }
     char* getName() { return (name); }
-    void Print() { cout << name; }
-    void SelfTest();		// test whether thread impl is working
+    void Print() { printf("%s, ", name); }
+#if defined(CHANGED) && defined(USER_PROGRAM)
+    Thread(char* debugName, int *id);
+    int Join(Thread *t, Lock *l);
+    void Exit(int ev, Lock *l);
+    void Kill(int which, int type, int ev, Lock *l);
+
+    bool CreateFile(char *fn);
+    int OpenReadWriteFile(char *fn);
+    int ReadOpenFile(int fd, int svaddr, int size);
+    int WriteOpenFile(int fd, int svaddr, int size);
+    void CloseOpenFile(int fd);
+
+    int ReadConsole(int b, int size);
+    int WriteConsole(int b, int size);
+    bool TlbFault(int);
+#endif
 
   private:
     // some of the private data for this class is listed above
     
-    int *stack; 	 	// Bottom of the stack 
-				// NULL if this is the main thread
-				// (If NULL, don't deallocate stack)
-    ThreadStatus status;	// ready, running or blocked
+#if defined(CHANGED) && defined(USER_PROGRAM)
+    int id;
+    int exitValue;
+    List      *joinThreads;
+    Condition *joinCondition;
+#endif
+    int* stack; 	 		// Bottom of the stack 
+					// NULL if this is the main thread
+					// (If NULL, don't deallocate stack)
+    ThreadStatus status;		// ready, running or blocked
     char* name;
 
-    void StackAllocate(VoidFunctionPtr func, void *arg);
-    				// Allocate a stack for thread.
-				// Used internally by Fork()
+    void StackAllocate(VoidFunctionPtr func, int arg);
+    					// Allocate a stack for thread.
+					// Used internally by Fork()
 
+#ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 
 // one for its state while executing user code, one for its state 
 // while executing kernel code.
@@ -129,16 +152,14 @@ class Thread {
     void RestoreUserState();		// restore user-level register state
 
     AddrSpace *space;			// User code this thread is running.
+#endif
 };
-
-// external function, dummy routine whose sole job is to call Thread::Print
-extern void ThreadPrint(Thread *thread);	 
 
 // Magical machine-dependent routines, defined in switch.s
 
 extern "C" {
 // First frame on thread execution stack; 
-//   	call ThreadBegin
+//   	enable interrupts
 //	call "func"
 //	(when func returns, if ever) call ThreadFinish()
 void ThreadRoot();

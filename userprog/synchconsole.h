@@ -1,53 +1,47 @@
 // synchconsole.h 
-//	Data structures for synchronized access to the keyboard
-//	and console display devices.
+// 	Data structures to export a synchronous interface to the raw 
+//	console device.
 //
-//	NOTE: this abstraction is not completely implemented.
-//
-// Copyright (c) 1992-1996 The Regents of the University of California.
+// Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
+
+#include "copyright.h"
 
 #ifndef SYNCHCONSOLE_H
 #define SYNCHCONSOLE_H
 
-#include "copyright.h"
-#include "utility.h"
-#include "callback.h"
 #include "console.h"
 #include "synch.h"
+#if defined(CHANGED) && defined(USER_PROGRAM)
 
-// The following two classes define synchronized input and output to
-// a console device
-
-class SynchConsoleInput : public CallBackObj {
+// The following class defines a "synchronous" console abstraction.
+// As with other I/O devices, the raw physical console is an asynchronous device --
+// requests to read or write portions of the console return immediately,
+// and an interrupt occurs later to signal that the operation completed.
+// (Also, the physical characteristics of the console device assume that
+// only one operation can be requested at a time).
+//
+// This class provides the abstraction that for any individual thread
+// making a request, it waits around until the operation finishes before
+// returning.
+class SynchConsole {
   public:
-    SynchConsoleInput(char *inputFile); // Initialize the console device
-    ~SynchConsoleInput();		// Deallocate console device
-
-    char GetChar();		// Read a character, waiting if necessary
+    SynchConsole(char* name, char *in, char *out);
+    ~SynchConsole();		
     
+    void PutChar(char data);
+    char GetChar();
+    void GetCharReady();
+    void PutCharDone();
+		
   private:
-    ConsoleInput *consoleInput;	// the hardware keyboard
-    Lock *lock;			// only one reader at a time
-    Semaphore *waitFor;		// wait for callBack
-
-    void CallBack();		// called when a keystroke is available
-};
-
-class SynchConsoleOutput : public CallBackObj {
-  public:
-    SynchConsoleOutput(char *outputFile); // Initialize the console device
-    ~SynchConsoleOutput();
-
-    void PutChar(char ch);	// Write a character, waiting if necessary
-    
-  private:
-    ConsoleOutput *consoleOutput;// the hardware display
-    Lock *lock;			// only one writer at a time
-    Semaphore *waitFor;		// wait for callBack
-
-    void CallBack();		// called when more data can be written
+    Console *console;		  		// Raw console device
+    Semaphore *putCharSemaphore;
+    Semaphore *getCharSemaphore;
+    Lock *putCharLock;
+    Lock *getCharLock;
 };
 
 #endif // SYNCHCONSOLE_H
+#endif

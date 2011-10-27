@@ -45,6 +45,7 @@
 #include "filesys.h"
 #include "openfile.h"
 #include "sysdep.h"
+#include "hello.h"
 
 // global variables
 Kernel *kernel;
@@ -244,8 +245,15 @@ main(int argc, char **argv)
             cout << "Partial usage: nachos [-l] [-D]\n";
 #endif //FILESYS_STUB
 	}
+	else if (strcmp(argv[i], "-hello") == 0) {
+    		Hello* hello = new Hello();
+    		hello->Print();
+		delete hello;
+	}
 
     }
+
+
     debug = new Debug(debugArg);
     
     DEBUG(dbgThread, "Entering main");

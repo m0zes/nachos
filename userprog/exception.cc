@@ -33,7 +33,7 @@ int ReadString(int vaddr, char* buff) {
 
 char ReadChar(int vaddr) {
    int phyAddr;
-   Translate(vaddr, &phyAddr, 2, FALSE);
+   AddrSpace::Translate(vaddr, &phyAddr, FALSE);
    char c;
    return c;
 }
@@ -120,7 +120,7 @@ int ExceptionWrite(int b, int size, int fd) {
     }
     systemLock->Acquire();
     return(ret);
-    }
+}
 
 int ExceptionOpen(int fn) {
     int ret;
@@ -135,6 +135,21 @@ int ExceptionOpen(int fn) {
     ret = currentThread->OpenReadWriteFile(filename);
     systemLock->Acquire();
     return(ret);
+}
+
+int ExceptionCreate(int fp) {
+    printf("Create: Not Implemented! Trying to create %x\n", fp);
+    return(0);
+}
+
+int ExceptionRead(int fp, int size, int fs) {
+    printf("Read: Not Implemented! Trying to read %x\n", fp);
+    return(0);
+}
+
+int ExceptionClose(int fp) {
+    printf("Close: Not Implemented! Trying to close %x\n", fp);
+    return(0); 
 }
 
 //----------------------------------------------------------------------

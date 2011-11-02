@@ -47,6 +47,7 @@ class Semaphore {
     
     void P();	 // these are the only operations on a semaphore
     void V();	 // they are both *atomic*
+	void SelfTest();
 #if defined(CHANGED)
     void Print();
 #endif
@@ -54,7 +55,7 @@ class Semaphore {
   private:
     char* name;        // useful for debugging
     int value;         // semaphore value, always >= 0
-    List *queue;       // threads waiting in P() for the value to be > 0
+    List<Thread> *queue;       // threads waiting in P() for the value to be > 0
 };
 
 // The following class defines a "lock".  A lock can be BUSY or FREE.
@@ -141,7 +142,7 @@ class Condition {
   private:
     char* name;
 #ifdef CHANGED
-    List *list;
+    List<Thread>	*list;
 #endif
     // plus some other stuff you'll need to define
 };

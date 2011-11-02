@@ -104,6 +104,8 @@ class Thread {
     void setStatus(ThreadStatus st) { status = st; }
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
+
+	void SelfTest();
 #if defined(CHANGED) && defined(USER_PROGRAM)
     Thread(char* debugName, int *id);
     int Join(Thread *t, Lock *l);

@@ -21,8 +21,19 @@
 
 class PostOfficeInput;
 class PostOfficeOutput;
-class SynchConsoleInput;
-class SynchConsoleOutput;
+class SynchConsoleInput{
+	public:
+		SynchConsoleInput(char* in);
+		~SynchConsoleInput();
+		char GetChar();
+};
+class SynchConsoleOutput{
+	public:
+		SynchConsoleOutput(char* out);
+		~SynchConsoleOutput();
+		void PutChar(char c);
+
+};
 class SynchDisk;
 
 class Kernel {

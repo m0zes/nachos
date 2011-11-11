@@ -106,7 +106,7 @@ void
 Interrupt::ChangeLevel(IntStatus old, IntStatus now)
 {
     level = now;
-    DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
+    //DEBUG(dbgInt, "\tinterrupts: " << intLevelNames[old] << " -> " << intLevelNames[now]);
 }
 
 //----------------------------------------------------------------------
@@ -158,7 +158,7 @@ Interrupt::OneTick()
 	stats->totalTicks += UserTick;
 	stats->userTicks += UserTick;
     }
-    DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
+    //DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
 
 // check any pending interrupts are now ready to fire
     ChangeLevel(IntOn, IntOff);	// first, turn off interrupts
@@ -207,7 +207,7 @@ Interrupt::YieldOnReturn()
 void
 Interrupt::Idle()
 {
-    DEBUG(dbgInt, "Machine idling; checking for interrupts.");
+    //DEBUG(dbgInt, "Machine idling; checking for interrupts.");
     status = IdleMode;
     if (CheckIfDue(TRUE)) {	// check for any pending interrupts
 	status = SystemMode;
@@ -220,7 +220,7 @@ Interrupt::Idle()
     // operating, there are *always* pending interrupts, so this code
     // is not reached.  Instead, the halt must be invoked by the user program.
 
-    DEBUG(dbgInt, "Machine idle.  No interrupts to do.");
+    //DEBUG(dbgInt, "Machine idle.  No interrupts to do.");
     cout << "No threads ready or runnable, and no pending interrupts.\n";
     cout << "Assuming the program completed.\n";
     Halt();
@@ -259,7 +259,7 @@ Interrupt::Schedule(CallBackObj *toCall, int fromNow, IntType type)
     int when = kernel->stats->totalTicks + fromNow;
     PendingInterrupt *toOccur = new PendingInterrupt(toCall, when, type);
 
-    DEBUG(dbgInt, "Scheduling interrupt handler the " << intTypeNames[type] << " at time = " << when);
+    //DEBUG(dbgInt, "Scheduling interrupt handler the " << intTypeNames[type] << " at time = " << when);
     ASSERT(fromNow > 0);
 
     pending->Insert(toOccur);
@@ -303,8 +303,8 @@ Interrupt::CheckIfDue(bool advanceClock)
 	}
     }
 
-    DEBUG(dbgInt, "Invoking interrupt handler for the ");
-    DEBUG(dbgInt, intTypeNames[next->type] << " at time " << next->when);
+    //DEBUG(dbgInt, "Invoking interrupt handler for the ");
+    //DEBUG(dbgInt, intTypeNames[next->type] << " at time " << next->when);
 
     if (kernel->machine != NULL) {
     	kernel->machine->DelayedLoad(0, 0);

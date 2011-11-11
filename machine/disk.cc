@@ -42,7 +42,7 @@ Disk::Disk(CallBackObj *toCall)
     int magicNum;
     int tmp = 0;
 
-    DEBUG(dbgDisk, "Initializing the disk.");
+    //DEBUG(dbgDisk, "Initializing the disk.");
     callWhenDone = toCall;
     lastSector = 0;
     bufferInit = 0;
@@ -118,7 +118,7 @@ Disk::ReadRequest(int sectorNumber, char* data)
     ASSERT(!active);				// only one request at a time
     ASSERT((sectorNumber >= 0) && (sectorNumber < NumSectors));
     
-    DEBUG(dbgDisk, "Reading from sector " << sectorNumber);
+    //DEBUG(dbgDisk, "Reading from sector " << sectorNumber);
     Lseek(fileno, SectorSize * sectorNumber + MagicSize, 0);
     Read(fileno, data, SectorSize);
     if (debug->IsEnabled('d'))
@@ -138,7 +138,7 @@ Disk::WriteRequest(int sectorNumber, char* data)
     ASSERT(!active);
     ASSERT((sectorNumber >= 0) && (sectorNumber < NumSectors));
     
-    DEBUG(dbgDisk, "Writing to sector " << sectorNumber);
+    //DEBUG(dbgDisk, "Writing to sector " << sectorNumber);
     Lseek(fileno, SectorSize * sectorNumber + MagicSize, 0);
     WriteFile(fileno, data, SectorSize);
     if (debug->IsEnabled('d'))
@@ -238,14 +238,14 @@ Disk::ComputeLatency(int newSector, bool writing)
     if ((writing == FALSE) && (seek == 0) 
 		&& (((timeAfter - bufferInit) / RotationTime) 
 	     		> ModuloDiff(newSector, bufferInit / RotationTime))) {
-        DEBUG(dbgDisk, "Request latency = " << RotationTime);
+        //DEBUG(dbgDisk, "Request latency = " << RotationTime);
 	return RotationTime; // time to transfer sector from the track buffer
     }
 #endif
 
     rotation += ModuloDiff(newSector, timeAfter / RotationTime) * RotationTime;
 
-    DEBUG(dbgDisk, "Request latency = " << (seek + rotation + RotationTime));
+    //DEBUG(dbgDisk, "Request latency = " << (seek + rotation + RotationTime));
     return(seek + rotation + RotationTime);
 }
 
@@ -264,5 +264,5 @@ Disk::UpdateLast(int newSector)
     if (seek != 0)
 	bufferInit = kernel->stats->totalTicks + seek + rotate;
     lastSector = newSector;
-    DEBUG(dbgDisk, "Updating last sector = " << lastSector << " , " << bufferInit);
+    //DEBUG(dbgDisk, "Updating last sector = " << lastSector << " , " << bufferInit);
 }

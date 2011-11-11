@@ -141,7 +141,7 @@ int ExceptionJoin(int id) {
 int ExceptionWrite(int b, int size, int fd) {
     int ret;
     systemLock->Release();
-    DEBUG('e', "Write(%d, %d, %d)\n", b, size, fd);
+    //DEBUG('e', "Write(%d, %d, %d)\n", b, size, fd);
     if (fd == ConsoleOutput) {
         ret = currentThread->WriteConsole(b, size);
     } else {
@@ -228,14 +228,14 @@ ExceptionHandler(ExceptionType which)
 {
     int type = kernel->machine->ReadRegister(2);
 
-    DEBUG(dbgSys, "Received Exception " << which << " type: " << type << "\n");
+    //DEBUG(dbgSys, "Received Exception " << which << " type: " << type << "\n");
 
 #if defined(CHANGED) && defined(USER_PROGRAM)
     switch (which) {
         case SyscallException:
             switch(type) {
                 case SC_Halt:
-                    DEBUG(dbgSys, "Shutdown, initiated by user program.\n");
+                    //DEBUG(dbgSys, "Shutdown, initiated by user program.\n");
 
                     ExceptionHalt();
 
@@ -243,7 +243,7 @@ ExceptionHandler(ExceptionType which)
                     break;
 
                 case SC_Add:
-                    DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) <<
+                    //DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) <<
                                   " + " << kernel->machine->ReadRegister(5) <<
                                   "\n");
     
@@ -252,7 +252,7 @@ ExceptionHandler(ExceptionType which)
                     result = ExceptionAdd(kernel->machine->ReadRegister(4),
                                           kernel->machine->ReadRegister(5));
 
-                    DEBUG(dbgSys, "Add returning with " << result << "\n");
+                    //DEBUG(dbgSys, "Add returning with " << result << "\n");
 
                     /* Prepare Result */
                     kernel->machine->WriteRegister(2, (int)result);
@@ -281,26 +281,26 @@ ExceptionHandler(ExceptionType which)
                     break;
 
                 case SC_Exit:
-                    DEBUG(dbgSys, "Exit due system exit due to " << kernel->machine->ReadRegister(4) << endl);
+                    //DEBUG(dbgSys, "Exit due system exit due to " << kernel->machine->ReadRegister(4) << endl);
                     ExceptionExit(kernel->machine->ReadRegister(4));
                     break;
 
                 case SC_Create:
-                    DEBUG(dbgSys, "Called Create on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << " " << kernel->machine->ReadRegister(7) << endl);
+                    //DEBUG(dbgSys, "Called Create on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << " " << kernel->machine->ReadRegister(7) << endl);
                     int fnpointer = kernel->machine-ReadRegister(4);
                     int ret = ExceptionCreate(fnpointer);
                     kernel->machine->WriteRegister(2, ret);
                     break;
 
                 case SC_Open:
-                    DEBUG(dbgSys, "Called Open on file: args = " << kernel->machine->ReadRegister(4) << endl);
+                    //DEBUG(dbgSys, "Called Open on file: args = " << kernel->machine->ReadRegister(4) << endl);
                     int fn = kernel->machine->ReadRegister(4);
                     int ret = ExceptionOpen(fn);
                     kernel->machine->WriteRegister(2, ret);
                     break;
 
                 case SC_Read:
-                    DEBUG(dbgSys, "Called Read on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << endl);
+                    //DEBUG(dbgSys, "Called Read on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << endl);
                     int fnpointer = kernel->machine->ReadRegister(4);
                     int size = kernel->machine->ReadRegister(5);
                     int fd = kernel->machine->ReadRegister(6);
@@ -309,7 +309,7 @@ ExceptionHandler(ExceptionType which)
                     break;
 
                 case SC_Write:
-                    DEBUG(dbgSys, "Called Write on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << endl);
+                    //DEBUG(dbgSys, "Called Write on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << endl);
                     int b = kernel->machine->ReadRegister(4);
                     int size = kernel->machine->ReadRegister(5);
                     int fd = kernel->machine->ReadRegister(6);
@@ -318,7 +318,7 @@ ExceptionHandler(ExceptionType which)
                     break;
 
                 case SC_Close:
-                    DEBUG(dbgSys, "Called Close on file: args = " << kernel->machine->ReadRegister(4) << endl);
+                    //DEBUG(dbgSys, "Called Close on file: args = " << kernel->machine->ReadRegister(4) << endl);
                     int fd = kernel->machine->ReadRegister(4);
                     int ret = ExceptionClose(fd);
                     kernel->machine->WriteRegister(2, ret);

@@ -294,7 +294,7 @@ Machine::OneInstruction(Instruction *instr)
 	break;
       	
       case OP_LUI:
-	DEBUG(dbgMach, "Executing: LUI r" << instr->rt << ", " << instr->extra);
+	//DEBUG(dbgMach, "Executing: LUI r" << instr->rt << ", " << instr->extra);
 	registers[instr->rt] = instr->extra << 16;
 	break;
 	
@@ -322,7 +322,7 @@ Machine::OneInstruction(Instruction *instr)
         // Then the switch uses  3 - (tmp & 0x3)  instead of (tmp & 0x3)
 
         byte = tmp & 0x3;
-        // DEBUG('P', "Addr 0x%X\n",tmp-byte);
+        // //DEBUG('P', "Addr 0x%X\n",tmp-byte);
 
         if (!ReadMem(tmp-byte, 4, &value))
             return;
@@ -374,7 +374,7 @@ Machine::OneInstruction(Instruction *instr)
         // Then the switch uses  3 - (tmp & 0x3)  instead of (tmp & 0x3)
 
         byte = tmp & 0x3;
-        // DEBUG('P', "Addr 0x%X\n",tmp-byte);
+        // //DEBUG('P', "Addr 0x%X\n",tmp-byte);
 
         if (!ReadMem(tmp-byte, 4, &value))
             return;
@@ -561,11 +561,11 @@ Machine::OneInstruction(Instruction *instr)
         // is a arbitrary) This is the whole purpose of LWL and LWR etc.
 
         byte = tmp & 0x3;
-        // DEBUG('P', "Addr 0x%X\n",tmp-byte);
+        // //DEBUG('P', "Addr 0x%X\n",tmp-byte);
         if (!ReadMem(tmp-byte, 4, &value))
             return;
 
-        // DEBUG('P', "Value 0x%X\n",value);
+        // //DEBUG('P', "Value 0x%X\n",value);
 #else
 
 	// The little endian/big endian swap code would
@@ -602,7 +602,7 @@ Machine::OneInstruction(Instruction *instr)
         if (!WriteMem((tmp & ~0x3), 4, value))
             return;
 #else
-        // DEBUG('P', "Value 0x%X\n",value);
+        // //DEBUG('P', "Value 0x%X\n",value);
 
         if (!WriteMem((tmp - byte), 4, value))
             return;
@@ -628,11 +628,11 @@ Machine::OneInstruction(Instruction *instr)
         // and LWR etc.
 
         byte = tmp & 0x3;
-        // DEBUG('P', "Addr 0x%X\n",tmp-byte);
+        // //DEBUG('P', "Addr 0x%X\n",tmp-byte);
 
         if (!ReadMem(tmp-byte, 4, &value))
             return;
-        // DEBUG('P', "Value 0x%X\n",value);
+        // //DEBUG('P', "Value 0x%X\n",value);
 #endif // SIM_FIX
 
 #ifndef SIM_FIX
@@ -659,7 +659,7 @@ Machine::OneInstruction(Instruction *instr)
         if (!WriteMem((tmp & ~0x3), 4, value))
             return;
 #else
-        // DEBUG('P', "Value 0x%X\n",value);
+        // //DEBUG('P', "Value 0x%X\n",value);
 
         if (!WriteMem((tmp - byte), 4, value))
             return;

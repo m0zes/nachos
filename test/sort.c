@@ -10,7 +10,7 @@
 
 /*
 #define UNIX
-#define UNIX_DEBUG
+#define UNIX_//DEBUG
 */
 
 #ifdef UNIX
@@ -45,7 +45,7 @@ main()
         }
     }
 
-#ifdef UNIX_DEBUG
+#ifdef UNIX_//DEBUG
     for (i=0; i<SIZE; i++) {
         printf("%4d ", A[i]);
 	if (((i+1) % 15) == 0) {
@@ -57,7 +57,7 @@ main()
         }   
     }
     printf("\n");
-#endif /* UNIX_DEBUG */
+#endif /* UNIX_//DEBUG */
 
     for (i=0; i<SIZE; i++) {
         if (A[i] != i) {

@@ -138,7 +138,7 @@ Initialize(int argc, char **argv)
 #endif
     }
 
-    DebugInit(debugArgs);			// initialize DEBUG messages
+    DebugInit(debugArgs);			// initialize //DEBUG messages
     stats = new Statistics();			// collect statistics
     interrupt = new Interrupt;			// start up interrupt handling
     scheduler = new Scheduler();		// initialize the ready queue

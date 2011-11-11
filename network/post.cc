@@ -122,7 +122,7 @@ MailBox::Put(PacketHeader pktHdr, MailHeader mailHdr, char *data)
 void 
 MailBox::Get(PacketHeader *pktHdr, MailHeader *mailHdr, char *data) 
 { 
-    DEBUG(dbgNet, "Waiting for mail in mailbox");
+    //DEBUG(dbgNet, "Waiting for mail in mailbox");
     Mail *mail = messages->RemoveFront();	// remove message from list;
 						// will wait if list is empty
 

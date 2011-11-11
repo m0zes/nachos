@@ -51,7 +51,7 @@ SwapHeader (NoffHeader *noffH)
     noffH->uninitData.inFileAddr = WordToHost(noffH->uninitData.inFileAddr);
 
 #ifdef RDATA
-    DEBUG(dbgAddr, "code = " << noffH->code.size <<  
+    //DEBUG(dbgAddr, "code = " << noffH->code.size <<  
                    " readonly = " << noffH->readonlyData.size <<
                    " init = " << noffH->initData.size <<
                    " uninit = " << noffH->uninitData.size << "\n");
@@ -129,7 +129,7 @@ AddrSpace::Load(char *fileName)
 						// at least until we have
 						// virtual memory
 
-    DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
+    //DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
 
     pageTable = new TranslationEntry[size];
     for (int i = 0; i < size; i++) {
@@ -146,21 +146,21 @@ AddrSpace::Load(char *fileName)
 // then, copy in the code and data segments into memory
 // Note: this code assumes that virtual address = physical address
     if (noffH.code.size > 0) {
-        DEBUG(dbgAddr, "Initializing code segment.");
-	DEBUG(dbgAddr, noffH.code.virtualAddr << ", " << noffH.code.size);
+        //DEBUG(dbgAddr, "Initializing code segment.");
+	//DEBUG(dbgAddr, noffH.code.virtualAddr << ", " << noffH.code.size);
 	// Read the executable to a buff, use writechar to move the buff into machine->mainMemory
     	executable->ReadAt(&buff[noffH.code.virtualAddr], noffH.code.size, noffH.code.inFileAddr);
     }
     if (noffH.initData.size > 0) {
-        DEBUG(dbgAddr, "Initializing data segment.");
-	DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
+        //DEBUG(dbgAddr, "Initializing data segment.");
+	//DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
     	executable->ReadAt(&buff[noffH.initData.virtualAddr], noffH.initData.size, noffH.initData.inFileAddr);
     }
 
 #ifdef RDATA
     if (noffH.readonlyData.size > 0) {
-        DEBUG(dbgAddr, "Initializing read only data segment.");
-	DEBUG(dbgAddr, noffH.readonlyData.virtualAddr << ", " << noffH.readonlyData.size);
+        //DEBUG(dbgAddr, "Initializing read only data segment.");
+	//DEBUG(dbgAddr, noffH.readonlyData.virtualAddr << ", " << noffH.readonlyData.size);
     	executable->ReadAt(&buff[noffH.readonlyData.virtualAddr], noffH.readonlyData.size, noffH.readonlyData.inFileAddr);
     }
 #endif
@@ -230,7 +230,7 @@ AddrSpace::InitRegisters()
    // allocated the stack; but subtract off a bit, to make sure we don't
    // accidentally reference off the end!
     machine->WriteRegister(StackReg, numPages * PageSize - 16);
-    DEBUG(dbgAddr, "Initializing stack pointer: " << numPages * PageSize - 16);
+    //DEBUG(dbgAddr, "Initializing stack pointer: " << numPages * PageSize - 16);
 }
 
 //----------------------------------------------------------------------
@@ -290,7 +290,7 @@ AddrSpace::Translate(int vaddr, int *paddr, bool writing)
     // if the pageFrame is too big, there is something really wrong!
     // An invalid translation was loaded into the page table or TLB.
     if (pfn >= NumPhysPages) {
-        DEBUG(dbgAddr, "Illegal physical page " << pfn);
+        //DEBUG(dbgAddr, "Illegal physical page " << pfn);
         return BusErrorException;
     }
 
@@ -303,7 +303,7 @@ AddrSpace::Translate(int vaddr, int *paddr, bool writing)
 
     ASSERT((*paddr < MemorySize));
 
-    DEBUG(dbgAddr, "AddrSpace::Translate(): vaddr: " << vaddr <<
+    //DEBUG(dbgAddr, "AddrSpace::Translate(): vaddr: " << vaddr <<
                    ", paddr: " << *paddr);
 
     return NoException;

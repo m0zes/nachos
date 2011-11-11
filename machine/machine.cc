@@ -102,7 +102,7 @@ Machine::~Machine()
 void
 Machine::RaiseException(ExceptionType which, int badVAddr)
 {
-    DEBUG(dbgMach, "Exception: " << exceptionNames[which]);
+    //DEBUG(dbgMach, "Exception: " << exceptionNames[which]);
     
     registers[BadVAddrReg] = badVAddr;
     DelayedLoad(0, 0);			// finish anything in progress

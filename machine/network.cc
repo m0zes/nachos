@@ -78,7 +78,7 @@ NetworkInput::CallBack()
     bcopy(buffer + sizeof(PacketHeader), inbox, inHdr.length);
     delete [] buffer ;
 
-    DEBUG(dbgNet, "Network received packet from " << inHdr.from << ", length " << inHdr.length);
+    //DEBUG(dbgNet, "Network received packet from " << inHdr.from << ", length " << inHdr.length);
     kernel->stats->numPacketsRecvd++;
 
     // tell post office that the packet has arrived
@@ -164,12 +164,12 @@ NetworkOutput::Send(PacketHeader hdr, char* data)
     
     ASSERT((sendBusy == FALSE) && (hdr.length > 0) && 
 	(hdr.length <= MaxPacketSize) && (hdr.from == kernel->hostName));
-    DEBUG(dbgNet, "Sending to addr " << hdr.to << ", length " << hdr.length);
+    //DEBUG(dbgNet, "Sending to addr " << hdr.to << ", length " << hdr.length);
 
     kernel->interrupt->Schedule(this, NetworkTime, NetworkSendInt);
 
     if (RandomNumber() % 100 >= chanceToWork * 100) { // emulate a lost packet
-	DEBUG(dbgNet, "oops, lost it!");
+	//DEBUG(dbgNet, "oops, lost it!");
 	return;
     }
 

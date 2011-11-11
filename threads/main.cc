@@ -102,7 +102,7 @@ Copy(char *from, char *to)
     Lseek(fd, 0, 0);
 
 // Create a Nachos file of the same length
-    DEBUG('f', "Copying file " << from << " of size " << fileLength <<  " to file " << to);
+    //DEBUG('f', "Copying file " << from << " of size " << fileLength <<  " to file " << to);
     if (!kernel->fileSystem->Create(to, fileLength)) {   // Create Nachos file
         printf("Copy: couldn't create output file %s\n", to);
         Close(fd);
@@ -257,7 +257,7 @@ main(int argc, char **argv)
 
     debug = new Debug(debugArg);
     
-    DEBUG(dbgThread, "Entering main");
+    //DEBUG(dbgThread, "Entering main");
 
     kernel = new Kernel(argc, argv);
 

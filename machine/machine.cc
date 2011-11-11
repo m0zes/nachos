@@ -71,6 +71,8 @@ Machine::Machine(bool debug)
     pageTable = NULL;
 #endif
 
+    bitmap = new Bitmap(MemorySize/PageSize);
+
     singleStep = debug;
     CheckEndian();
 }

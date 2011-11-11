@@ -26,16 +26,45 @@
 #include "syscall.h"
 #include "system.h"
 
-int ReadString(int vaddr, char* buff) {
-    int size = 0;
-    return size;
+#define MAXBUFFSIZE = 4096
+
+void WriteChar(char c, int vaddr) {
+    int phyAddr;
+    AddrSpace::Translate(vaddr, &phyAddr, TRUE);
+    machine->mainMemory[phyAddr] = c;
+}
+
+void WriteString(int vaddr, char* buff) {
+    int i;
+    for (i = 0; i < MAXBUFFSIZE; i++) {
+        WriteChar(buff[i], vaddr + i);
+        if (buff[i] == '\0')
+            break;
+    }
+}
+
+void WriteBuffer(int length, int vaddr, char* buff) {
+    int i;
+    for (i = 0; i < length; i++) {
+        WriteChar(buff[i], vaddr + i);
+    }
 }
 
 char ReadChar(int vaddr) {
    int phyAddr;
    AddrSpace::Translate(vaddr, &phyAddr, FALSE);
-   char c;
+   char c = machine->mainMemory[phyAddr];
    return c;
+}
+
+int ReadString(int vaddr, char* buff) {
+    int size;
+    for (size = 0; size < MAXBUFFSIZE; size++) {
+        buff[size] = ReadChar(vaddr + size);
+        if (buff[size] == '\0')
+            break;
+    }
+    return size;
 }
 
 void ExceptionHalt() {

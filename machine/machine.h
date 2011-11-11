@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "utility.h"
 #include "translate.h"
+#include "bitmap.h"
 
 // Definitions related to the size, and format of user memory
 
@@ -136,6 +137,9 @@ class Machine {
 					// "read-only" to Nachos kernel code
 
     TranslationEntry *pageTable;
+
+    Bitmap *bitmap;
+
     int pageTableSize;
 
     bool ReadMem(int addr, int size, int* value);

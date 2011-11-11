@@ -10,8 +10,8 @@
 // All rights reserved.  See copyright.h for copyright notice and limitation 
 // of liability and disclaimer of warranty provisions.
 
-#ifndef //DEBUG_H
-#define //DEBUG_H
+#ifndef DEBUG_H
+#define DEBUG_H
 
 #include "copyright.h"		
 #include "utility.h"
@@ -47,7 +47,7 @@ extern Debug *debug;
 // //DEBUG
 //      If flag is enabled, print a message.
 //----------------------------------------------------------------------
-#define //DEBUG(flag,expr)                                                     \
+#define DEBUG(flag,expr)                                                     \
     if (!debug->IsEnabled(flag)) {} else { 				\
         cerr << expr << "\n";   				        \
     }
@@ -93,4 +93,4 @@ extern Debug *debug;
        << __FILE__ << " line: " << __LINE__ << ".\n";                        \
 }
 
-#endif // //DEBUG_H
+#endif DEBUG_H

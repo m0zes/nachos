@@ -20,7 +20,7 @@
 #include "addrspace.h"
 #include "machine.h"
 #include "noff.h"
-#include "exception.h"
+#include "exception.cc"
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -52,9 +52,9 @@ SwapHeader (NoffHeader *noffH)
 
 #ifdef RDATA
     //DEBUG(dbgAddr, "code = " << noffH->code.size <<  
-                   " readonly = " << noffH->readonlyData.size <<
-                   " init = " << noffH->initData.size <<
-                   " uninit = " << noffH->uninitData.size << "\n");
+//                   " readonly = " << noffH->readonlyData.size <<
+//                   " init = " << noffH->initData.size <<
+//                   " uninit = " << noffH->uninitData.size << "\n");
 #endif
 }
 

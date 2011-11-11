@@ -179,7 +179,7 @@ void
 Thread::Fork(VoidFunctionPtr func, int arg)
 {
     //DEBUG('t', "Forking thread \"%s\" with func = 0x%x, arg = %d\n",
-	  name, (int) func, arg);
+//	  name, (int) func, arg);
     
     StackAllocate(func, arg);
 
@@ -275,7 +275,7 @@ Thread::Yield ()
     nextThread = scheduler->FindNextToRun();
     if (nextThread != NULL) {
 	scheduler->ReadyToRun(this);
-	scheduler->Run(nextThread);
+	scheduler->Run(nextThread, true);
     }
     (void) interrupt->SetLevel(oldLevel);
 }
@@ -313,7 +313,7 @@ Thread::Sleep ()
     while ((nextThread = scheduler->FindNextToRun()) == NULL)
 	interrupt->Idle();	// no one to run, wait for an interrupt
         
-    scheduler->Run(nextThread); // returns when we've been signalled
+    scheduler->Run(nextThread, true); // returns when we've been signalled
 }
 
 //----------------------------------------------------------------------

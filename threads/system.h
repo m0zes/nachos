@@ -27,6 +27,11 @@ extern void Initialize(int argc, char **argv); 	// Initialization,
 extern void Cleanup();				// Cleanup, called when
 						// Nachos is done.
 
+//DebutInit declaration
+
+void DebugInit(char* debugArgs);
+
+
 extern Thread *currentThread;			// the thread holding the CPU
 extern Thread *threadToBeDestroyed;  		// the thread that just finished
 extern Scheduler *scheduler;			// the ready list
@@ -38,6 +43,7 @@ extern BitMap *bitmap;
 extern Lock *systemLock;
 extern Table *threadTable;
 extern SynchConsole *systemConsole;
+
 
 #define SystemBufferSize (PageSize * 4)
 extern char systemBuffer[SystemBufferSize];

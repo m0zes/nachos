@@ -27,7 +27,7 @@
 #ifdef CHANGED
 #include "list.h"
 #endif
-
+#include "list.h"
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
 // 	Initialize a semaphore, so that it can be used for synchronization.
@@ -40,7 +40,7 @@ Semaphore::Semaphore(char* debugName, int initialValue)
 {
     name = debugName;
     value = initialValue;
-    queue = new List;
+    queue = new List<Thread>;
 }
 
 //----------------------------------------------------------------------
@@ -136,7 +136,7 @@ void Lock::Release() {}
 #ifdef CHANGED
 Condition::Condition(char* debugName)
 {
-  list = new List();
+  list = new List<Semaphore>(); //Type not certain
   name = debugName;
 }
 Condition::~Condition()
@@ -146,7 +146,7 @@ Condition::~Condition()
 void Condition::Wait(Lock* conditionLock)
 {
   Semaphore *s = new Semaphore("condition semaphore", 0);
-  list->Append(s);
+  list->Append(*s);
   conditionLock->Release();
   s->P();
   conditionLock->Acquire();

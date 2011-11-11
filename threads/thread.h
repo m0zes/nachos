@@ -48,6 +48,9 @@
 #include "addrspace.h"
 #endif
 
+//Moved this outside of ifdef to try to get to compile
+#include "addrspace.h"
+
 // CPU register state to be saved on context switch.  
 // The SPARC and MIPS only need 10 registers, but the Snake needs 18.
 // For simplicity, this is just the max over all architectures.
@@ -84,6 +87,16 @@ class Thread {
     int machineState[MachineStateSize];  // all registers except for stackTop
 
   public:
+  
+	void SaveUserState();		// save user-level register state
+    void RestoreUserState();		// restore user-level register state
+
+    AddrSpace *space;			// User code this thread is running.
+  
+	Thread(); //dummy constructor with no parameters
+	bool operator==(const Thread &t);
+  
+  
     Thread(char* debugName);		// initialize a Thread 
     ~Thread(); 				// deallocate a Thread
 					// NOTE -- thread being deleted
@@ -155,6 +168,9 @@ class Thread {
 
     AddrSpace *space;			// User code this thread is running.
 #endif
+
+
+
 };
 
 // Magical machine-dependent routines, defined in switch.s
@@ -162,7 +178,7 @@ class Thread {
 extern "C" {
 // First frame on thread execution stack; 
 //   	enable interrupts
-//	call "func"
+//	call "func"make 
 //	(when func returns, if ever) call ThreadFinish()
 void ThreadRoot();
 

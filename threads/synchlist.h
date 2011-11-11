@@ -48,6 +48,7 @@ class SynchList {
     static void SelfTestHelper(void* data);
 };
 
-#include "synchlist.cc"
+
+//#include "synchlist.cc" //For real?! Why would this even be here?!?! Like, for real!
 
 #endif // SYNCHLIST_H

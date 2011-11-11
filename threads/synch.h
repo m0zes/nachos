@@ -23,6 +23,7 @@
 #include "thread.h"
 #endif
 #include "list.h"
+#include "thread.h"
 
 // The following class defines a "semaphore" whose value is a non-negative
 // integer.  The semaphore has only two operations P() and V():
@@ -42,12 +43,16 @@
 class Semaphore {
   public:
     Semaphore(char* debugName, int initialValue);	// set initial value
-    ~Semaphore();   					// de-allocate semaphore
+    Semaphore(); // added default constructor
+	~Semaphore();   					// de-allocate semaphore
     char* getName() { return name;}			// debugging assist
     
     void P();	 // these are the only operations on a semaphore
     void V();	 // they are both *atomic*
 	void SelfTest();
+	
+	bool operator==(const Semaphore &s); //added
+	
 #if defined(CHANGED)
     void Print();
 #endif
@@ -142,7 +147,7 @@ class Condition {
   private:
     char* name;
 #ifdef CHANGED
-    List<Thread>	*list;
+    List<Semaphore>	*list;  //Changed from list of threads
 #endif
     // plus some other stuff you'll need to define
 };

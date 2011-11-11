@@ -30,6 +30,9 @@ class Timer : public CallBackObj {
     Timer(bool doRandom, CallBackObj *toCall);
 				// Initialize the timer, and callback to "toCall"
 				// every time slice.
+				
+	Timer(int a , int b, bool& c); //added for compilation
+	
     virtual ~Timer() {}
     
     void Disable() { disable = TRUE; }

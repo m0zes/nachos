@@ -46,7 +46,7 @@
 #include "openfile.h"
 #include "sysdep.h"
 #include "hello.h"
-#include "adderspace.h"
+#include "addrspace.h"
 
 // global variables
 Kernel *kernel;

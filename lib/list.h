@@ -54,6 +54,9 @@ class List {
 				// without removing it
     T RemoveFront(); 		// Take item off the front of the list
     void Remove(T item); 	// Remove specific item from list
+	
+	//Needs Implementing
+	T* Remove();
 
     bool IsInList(T item) const;// is the item in the list?
 

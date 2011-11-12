@@ -93,4 +93,4 @@ extern Debug *debug;
        << __FILE__ << " line: " << __LINE__ << ".\n";                        \
 }
 
-#endif DEBUG_H
+#endif //DEBUG_H

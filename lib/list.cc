@@ -242,7 +242,7 @@ SortedList<T>::Insert(T item)
     ListElement<T> *ptr;		// keep track
 
     ASSERT(!IsInList(item));
-    if (IsEmpty()) {			// if list is empty, put at front
+    if (this->IsEmpty()) {			// if list is empty, put at front
         this->first = element;
         this->last = element;
     } else if (compare(item, this->first->item) < 0) {  // item goes at front 
@@ -373,10 +373,10 @@ SortedList<T>::SelfTest(T *p, int numEntries)
 
      // should be able to get out everything we put in
      for (i = 0; i < numEntries; i++) {
-	 q[i] = RemoveFront();
+	 q[i] = this->RemoveFront();
          ASSERT(!IsInList(q[i]));
      }
-     ASSERT(IsEmpty());
+     ASSERT(this->IsEmpty());
 
      // make sure everything came out in the right order
      for (i = 0; i < (numEntries - 1); i++) {

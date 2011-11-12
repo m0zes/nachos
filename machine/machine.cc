@@ -74,6 +74,7 @@ Machine::Machine(bool debug)
     bitmap = new Bitmap(MemorySize/PageSize);
 
     singleStep = debug;
+    systemLock = new Lock("systemLock");
     CheckEndian();
 }
 

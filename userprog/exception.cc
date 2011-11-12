@@ -26,12 +26,12 @@
 #include "syscall.h"
 #include "system.h"
 
-#define MAXBUFFSIZE = 4096
+#define MAXBUFFSIZE 4096
 
 void WriteChar(char c, int vaddr) {
     int phyAddr;
-    AddrSpace::Translate(vaddr, &phyAddr, TRUE);
-    machine->mainMemory[phyAddr] = c;
+    currentThread->space->Translate(vaddr, &phyAddr, TRUE);
+    kernel->machine->mainMemory[phyAddr] = c;
 }
 
 void WriteString(int vaddr, char* buff) {
@@ -52,8 +52,8 @@ void WriteBuffer(int length, int vaddr, char* buff) {
 
 char ReadChar(int vaddr) {
    int phyAddr;
-   AddrSpace::Translate(vaddr, &phyAddr, FALSE);
-   char c = machine->mainMemory[phyAddr];
+   currentThread->space->Translate(vaddr, &phyAddr, FALSE);
+   char c = kernel->machine->mainMemory[phyAddr];
    return c;
 }
 
@@ -77,8 +77,8 @@ int ExceptionAdd(int op1, int op2) {
 #if defined(CHANGED) && defined(USER_PROGRAM)
 void ExceptionExit(int n) {
   printf("Exit(%d)\n", n);
-  currentThread->Exit(n, systemLock);
-  systemLock->Release();
+  currentThread->Exit(n, kernel->machine->systemLock);
+  kernel->machine->systemLock->Release();
   currentThread->Finish();
   ASSERTNOTREACHED();
 }
@@ -140,14 +140,14 @@ int ExceptionJoin(int id) {
 
 int ExceptionWrite(int b, int size, int fd) {
     int ret;
-    systemLock->Release();
+    kernel->machine->systemLock->Release();
     //DEBUG('e', "Write(%d, %d, %d)\n", b, size, fd);
     if (fd == ConsoleOutput) {
         ret = currentThread->WriteConsole(b, size);
     } else {
         ret = currentThread->WriteOpenFile(fd, b, size);
     }
-    systemLock->Acquire();
+    kernel->machine->systemLock->Acquire();
     return(ret);
 }
 
@@ -155,14 +155,14 @@ int ExceptionOpen(int fn) {
     int ret;
     char filename[SizeExceptionFilename];
     printf("Open(%d)\n", fn);
-    if (!(currentThread->space->ReadString(fn, filename, SizeExceptionFilename))) {
+    if (!(ReadString(fn, filename, SizeExceptionFilename))) {
         printf("Exec: Unable to read filename at address %x\n", fn);
         return(0);
     }
     filename[SizeExceptionFilename - 1] = '\0';
-    systemLock->Release();
+    kernel->machine->systemLock->Release();
     ret = currentThread->OpenReadWriteFile(filename);
-    systemLock->Acquire();
+    kernel->machine->systemLock->Acquire();
     return(ret);
 }
 

@@ -50,12 +50,12 @@ SwapHeader (NoffHeader *noffH)
     noffH->uninitData.virtualAddr = WordToHost(noffH->uninitData.virtualAddr);
     noffH->uninitData.inFileAddr = WordToHost(noffH->uninitData.inFileAddr);
 
-#ifdef RDATA
+//#ifdef RDATA
     //DEBUG(dbgAddr, "code = " << noffH->code.size <<  
 //                   " readonly = " << noffH->readonlyData.size <<
 //                   " init = " << noffH->initData.size <<
 //                   " uninit = " << noffH->uninitData.size << "\n");
-#endif
+//#endif
 }
 
 //----------------------------------------------------------------------
@@ -66,9 +66,10 @@ SwapHeader (NoffHeader *noffH)
 //	only uniprogramming, and we have a single unsegmented page table
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace()
-{
-}
+//AddrSpace::AddrSpace()
+//{
+//	return;
+//}
 
 //----------------------------------------------------------------------
 // AddrSpace::~AddrSpace
@@ -304,7 +305,7 @@ AddrSpace::Translate(int vaddr, int *paddr, bool writing)
     ASSERT((*paddr < MemorySize));
 
     //DEBUG(dbgAddr, "AddrSpace::Translate(): vaddr: " << vaddr <<
-                   ", paddr: " << *paddr);
+    //               ", paddr: " << *paddr);
 
     return NoException;
 }

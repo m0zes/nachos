@@ -28,6 +28,7 @@
 #include "list.h"
 #endif
 #include "list.h"
+#include "thread.h"
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
 // 	Initialize a semaphore, so that it can be used for synchronization.
@@ -40,7 +41,7 @@ Semaphore::Semaphore(char* debugName, int initialValue)
 {
     name = debugName;
     value = initialValue;
-    queue = new List<Thread>;
+    queue = new List<void*>;
 }
 
 //----------------------------------------------------------------------

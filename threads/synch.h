@@ -18,12 +18,12 @@
 #define SYNCH_H
 
 #include "copyright.h"
-#ifdef CHANGED
-#else
-#include "thread.h"
-#endif
+//#ifdef CHANGED
+//#else
+//#include "thread.h"
+//#endif
 #include "list.h"
-#include "thread.h"
+//#include "thread.h"
 
 // The following class defines a "semaphore" whose value is a non-negative
 // integer.  The semaphore has only two operations P() and V():
@@ -60,7 +60,7 @@ class Semaphore {
   private:
     char* name;        // useful for debugging
     int value;         // semaphore value, always >= 0
-    List<Thread> *queue;       // threads waiting in P() for the value to be > 0
+    List<void*> *queue;       // threads waiting in P() for the value to be > 0
 };
 
 // The following class defines a "lock".  A lock can be BUSY or FREE.

@@ -11,6 +11,7 @@
 
 #include "copyright.h"
 #include "synchlist.h"
+#include "thread.h"
 
 //----------------------------------------------------------------------
 // SynchList<T>::SynchList

@@ -18,6 +18,7 @@
 
 #include "copyright.h"
 #include "post.h"
+#include "thread.h"
 
 //----------------------------------------------------------------------
 // Mail::Mail
@@ -313,7 +314,8 @@ PostOfficeOutput::Send(PacketHeader pktHdr, MailHeader mailHdr, char* data)
     ASSERT(0 <= mailHdr.to);
     
     // fill in pktHdr, for the Network layer
-    pktHdr.from = kernel->hostName;
+    //pktHdr.from = kernel->hostName;
+    pktHdr.from = "BLahs";
     pktHdr.length = mailHdr.length + sizeof(MailHeader);
 
     // concatenate MailHeader and data

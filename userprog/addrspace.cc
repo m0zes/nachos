@@ -20,7 +20,7 @@
 #include "addrspace.h"
 #include "machine.h"
 #include "noff.h"
-#include "exception.cc"
+#include "exception.h"
 
 //----------------------------------------------------------------------
 // SwapHeader

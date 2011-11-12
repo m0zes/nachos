@@ -25,8 +25,7 @@
 #include "main.h"
 #include "syscall.h"
 #include "system.h"
-
-#define MAXBUFFSIZE 4096
+#include "exception.h"
 
 void WriteChar(char c, int vaddr) {
     int phyAddr;
@@ -34,9 +33,9 @@ void WriteChar(char c, int vaddr) {
     kernel->machine->mainMemory[phyAddr] = c;
 }
 
-void WriteString(int vaddr, char* buff) {
+void WriteString(int vaddr, char* buff, int buffsize) {
     int i;
-    for (i = 0; i < MAXBUFFSIZE; i++) {
+    for (i = 0; i < buffsize; i++) {
         WriteChar(buff[i], vaddr + i);
         if (buff[i] == '\0')
             break;
@@ -57,9 +56,9 @@ char ReadChar(int vaddr) {
    return c;
 }
 
-int ReadString(int vaddr, char* buff) {
+int ReadString(int vaddr, char* buff, int buffsize) {
     int size;
-    for (size = 0; size < MAXBUFFSIZE; size++) {
+    for (size = 0; size < buffsize; size++) {
         buff[size] = ReadChar(vaddr + size);
         if (buff[size] == '\0')
             break;
@@ -74,10 +73,10 @@ void ExceptionHalt() {
 int ExceptionAdd(int op1, int op2) {
     return ( op1 + op2 );
 }
-#if defined(CHANGED) && defined(USER_PROGRAM)
+//#if defined(CHANGED) && defined(USER_PROGRAM)
 void ExceptionExit(int n) {
   printf("Exit(%d)\n", n);
-  currentThread->Exit(n, kernel->machine->systemLock);
+  //currentThread->Exit(n, kernel->machine->systemLock);
   kernel->machine->systemLock->Release();
   currentThread->Finish();
   ASSERTNOTREACHED();
@@ -86,14 +85,15 @@ void ExceptionExit(int n) {
 void ForkExec(int dummy) { 
   AddrSpace *space = currentThread->space;
 
-  space->InitRegisters();             // set the initial register values
-  space->RestoreState();              // load page table register
+  //space->InitRegisters();             // set the initial register values
+  //space->RestoreState();              // load page table register
  
-  machine->Run();                     // jump to the user progam
+  kernel->machine->Run();                     // jump to the user progam
   ASSERT(FALSE);                      // machine->Run never returns;
                                         // the address space exits
                                         // by doing the syscall "exit"
 }
+//#endif
 
 #define SizeExceptionFilename 64
 
@@ -103,50 +103,52 @@ ExceptionExec(int fn) {
   bool failed;
   char filename[SizeExceptionFilename];
   int ret;
-  if (!(currentThread->space->ReadString(fn, filename, SizeExceptionFilename))) { 
+  if (!(ReadString(fn, filename, SizeExceptionFilename))) { 
     printf("Exec: Unable to read filename at address %x\n", fn);
     return(0);
   } 
   filename[SizeExceptionFilename - 1] = '\0';
-  OpenFile *executable = fileSystem->Open(filename);
+  OpenFile *executable = kernel->fileSystem->Open(filename);
   AddrSpace *space;
   if (executable == NULL) { 
     printf("Exec: Unable to open file %s\n", filename);
     return(0);
   }
-  space = new AddrSpace(executable, &failed);
+  space = new AddrSpace();
+  //space->Load(executable);
   delete executable;
   if (failed) { 
     delete space;
     printf("Exec: Unable to read in executable for file %s\n", filename);
     return(0);
   } 
-  t = new Thread("Exec Thread", &ret);
+  //t = new Thread("Exec Thread", &ret);
   t->space = space;
-  t->Fork(ForkExec, 0);
+  //t->Fork(ForkExec, 0);
   return(ret);
 }
 
 int ExceptionJoin(int id) { 
-  Thread *t;
-  t = (Thread *) (threadTable->Lookup(id));
-  if (t == NULL) { 
-    return(0);
-  }
-  return(currentThread->Join(t, systemLock));
+  return 0;
+  //Thread *t;
+  //t = (Thread *) (threadTable->Lookup(id));
+  //if (t == NULL) { 
+  //  return(0);
+  //}
+  //return(currentThread->Join(t, systemLock));
 }
 
-#endif
+//#endif
 
 int ExceptionWrite(int b, int size, int fd) {
     int ret;
     kernel->machine->systemLock->Release();
     //DEBUG('e', "Write(%d, %d, %d)\n", b, size, fd);
-    if (fd == ConsoleOutput) {
-        ret = currentThread->WriteConsole(b, size);
-    } else {
-        ret = currentThread->WriteOpenFile(fd, b, size);
-    }
+    //if (fd == ConsoleOutput) {
+    //    ret = currentThread->WriteConsole(b, size);
+    //} else {
+    //    ret = currentThread->WriteOpenFile(fd, b, size);
+    //}
     kernel->machine->systemLock->Acquire();
     return(ret);
 }
@@ -161,7 +163,9 @@ int ExceptionOpen(int fn) {
     }
     filename[SizeExceptionFilename - 1] = '\0';
     kernel->machine->systemLock->Release();
-    ret = currentThread->OpenReadWriteFile(filename);
+    // fix this! 
+    //ret = currentThread->OpenReadWriteFile(filename);
+    ret = 5;
     kernel->machine->systemLock->Acquire();
     return(ret);
 }
@@ -230,29 +234,21 @@ ExceptionHandler(ExceptionType which)
 
     //DEBUG(dbgSys, "Received Exception " << which << " type: " << type << "\n");
 
-#if defined(CHANGED) && defined(USER_PROGRAM)
     switch (which) {
         case SyscallException:
             switch(type) {
                 case SC_Halt:
-                    //DEBUG(dbgSys, "Shutdown, initiated by user program.\n");
-
                     ExceptionHalt();
 
                     ASSERTNOTREACHED();
                     break;
 
                 case SC_Add:
-                    //DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) <<
-                                  " + " << kernel->machine->ReadRegister(5) <<
-                                  "\n");
     
                     /* Process SysAdd Systemcall*/
                     int result;
                     result = ExceptionAdd(kernel->machine->ReadRegister(4),
                                           kernel->machine->ReadRegister(5));
-
-                    //DEBUG(dbgSys, "Add returning with " << result << "\n");
 
                     /* Prepare Result */
                     kernel->machine->WriteRegister(2, (int)result);
@@ -281,51 +277,62 @@ ExceptionHandler(ExceptionType which)
                     break;
 
                 case SC_Exit:
-                    //DEBUG(dbgSys, "Exit due system exit due to " << kernel->machine->ReadRegister(4) << endl);
                     ExceptionExit(kernel->machine->ReadRegister(4));
+		    return;
                     break;
 
                 case SC_Create:
-                    //DEBUG(dbgSys, "Called Create on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << " " << kernel->machine->ReadRegister(7) << endl);
-                    int fnpointer = kernel->machine-ReadRegister(4);
-                    int ret = ExceptionCreate(fnpointer);
-                    kernel->machine->WriteRegister(2, ret);
+		    {
+                    int createfnpointer = kernel->machine->ReadRegister(4);
+                    int createret = ExceptionCreate(createfnpointer);
+                    kernel->machine->WriteRegister(2, createret);
+		    return;
                     break;
+		    }
 
                 case SC_Open:
-                    //DEBUG(dbgSys, "Called Open on file: args = " << kernel->machine->ReadRegister(4) << endl);
-                    int fn = kernel->machine->ReadRegister(4);
-                    int ret = ExceptionOpen(fn);
-                    kernel->machine->WriteRegister(2, ret);
+		    {
+                    int openfn = kernel->machine->ReadRegister(4);
+                    int openret = ExceptionOpen(openfn);
+                    kernel->machine->WriteRegister(2, openret);
+		    return;
                     break;
+		    }
 
                 case SC_Read:
-                    //DEBUG(dbgSys, "Called Read on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << endl);
-                    int fnpointer = kernel->machine->ReadRegister(4);
-                    int size = kernel->machine->ReadRegister(5);
-                    int fd = kernel->machine->ReadRegister(6);
-                    int ret = ExceptionRead(fnpointer, size, fs);
-                    kernel->machine->WriteRegister(2, ret);
+		    {
+                    int readfnpointer = kernel->machine->ReadRegister(4);
+                    int readsize = kernel->machine->ReadRegister(5);
+                    int readfd = kernel->machine->ReadRegister(6);
+                    int readret = ExceptionRead(readfnpointer, readsize, readfd);
+                    kernel->machine->WriteRegister(2, readret);
+		    return;
                     break;
+		    }
 
                 case SC_Write:
-                    //DEBUG(dbgSys, "Called Write on file: args = " << kernel->machine->ReadRegister(4) << " " << kernel->machine->ReadRegister(5) << " " << kernel->machine->ReadRegister(6) << endl);
-                    int b = kernel->machine->ReadRegister(4);
-                    int size = kernel->machine->ReadRegister(5);
-                    int fd = kernel->machine->ReadRegister(6);
-                    int ret = ExceptionWrite(b, size, fd);
-                    kernel->machine->WriteRegister(2, ret);
+		    {
+                    int writeb = kernel->machine->ReadRegister(4);
+                    int writesize = kernel->machine->ReadRegister(5);
+                    int writefd = kernel->machine->ReadRegister(6);
+                    int writeret = ExceptionWrite(writeb, writesize, writefd);
+                    kernel->machine->WriteRegister(2, writeret);
+		    return;
                     break;
+		    }
 
                 case SC_Close:
-                    //DEBUG(dbgSys, "Called Close on file: args = " << kernel->machine->ReadRegister(4) << endl);
-                    int fd = kernel->machine->ReadRegister(4);
-                    int ret = ExceptionClose(fd);
-                    kernel->machine->WriteRegister(2, ret);
+		    {
+                    int closefd = kernel->machine->ReadRegister(4);
+                    int closeret = ExceptionClose(closefd);
+                    kernel->machine->WriteRegister(2, closeret);
+		    return;
                     break;
+		    }
 
                 default:
                     cerr << "Unexpected system call " << type << "\n";
+		    return;
                     break;
             }
             break;
@@ -335,4 +342,3 @@ ExceptionHandler(ExceptionType which)
     }
     ASSERTNOTREACHED();
 }
-#endif

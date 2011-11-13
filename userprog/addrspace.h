@@ -36,6 +36,16 @@ class AddrSpace {
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
 
+    //Added functionality here:
+    bool CreateFile(char *fn);
+    int OpenReadWriteFile(char *fn);
+    int ReadOpenFile(int fd, int svaddr, int size);
+    int WriteOpenFile(int fd, int svaddr, int size);
+    void CloseOpenFile(int fd);
+    int ReadConsole(int b, int size);
+    int WriteConsole(int b, int size);
+    bool TlbFault(int vaddr);
+
     // Translate virtual address _vaddr_
     // to physical address _paddr_.
     // _writing_ is false for Read, true for Write.

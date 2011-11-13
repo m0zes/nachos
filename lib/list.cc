@@ -132,7 +132,9 @@ List<T>::RemoveFront()
     ListElement<T> *element = first;
     T thing;
 
-    ASSERT(!IsEmpty());
+    //ASSERT(!this->IsEmpty());
+    if (this->IsEmpty())
+        return (T)NULL;
 
     thing = first->item;
     if (first == last) {	// list had one item, now has none 

@@ -74,7 +74,7 @@ Semaphore::P()
     IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);	// disable interrupts
     
     while (value == 0) { 			// semaphore not available
-	queue->Append((void *)currentThread);	// so go to sleep
+	queue->Append((void *)kernel->currentThread);	// so go to sleep
 	kernel->currentThread->Sleep();
     } 
     value--; 					// semaphore available, 

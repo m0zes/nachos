@@ -147,11 +147,12 @@ int ExceptionWrite(int b, int size, int fd) {
     int ret;
     kernel->systemLock->Release();
     //DEBUG('e', "Write(%d, %d, %d)\n", b, size, fd);
-    //if (fd == ConsoleOutput) {
-    //    ret = currentThread->WriteConsole(b, size);
-    //} else {
-    //    ret = currentThread->WriteOpenFile(fd, b, size);
-    //}
+    cout << "Debug Write" << b << " " << size << " " << fd <<endl;
+    if (fd == ConsoleOutput) {
+        ret = kernel->currentThread->WriteConsole(b, size);
+    } else {
+        ret = kernel->currentThread->WriteOpenFile(fd, b, size);
+    }
     kernel->systemLock->Acquire();
     return(ret);
 }
@@ -161,31 +162,50 @@ int ExceptionOpen(int fn) {
     char filename[SizeExceptionFilename];
     printf("Open(%d)\n", fn);
     if (!(ReadString(fn, filename, SizeExceptionFilename))) {
-        printf("Exec: Unable to read filename at address %x\n", fn);
+        printf("Open: Unable to read filename at address %x\n", fn);
         return(0);
     }
     filename[SizeExceptionFilename - 1] = '\0';
     kernel->systemLock->Release();
     // fix this! 
-    //ret = currentThread->OpenReadWriteFile(filename);
-    ret = 5;
+    ret = currentThread->OpenReadWriteFile(filename);
     kernel->systemLock->Acquire();
     return(ret);
 }
 
 int ExceptionCreate(int fp) {
-    printf("Create: Not Implemented! Trying to create %x\n", fp);
-    return(0);
+    int ret;
+    char filename[SizeExceptionFilename];
+    printf("Create: %x\n", fp);
+    if (!(ReadString(fp, filename, SizeExceptionFilename))) {
+        printf("Create: Unable to read filename at address %x\n", fp);
+	return 0;
+    }
+    filename[SizeExceptionFilename - 1] = '\0';
+    kernel->systemLock->Release();
+    ret = currentThread->CreateFile(filename);
+    kernel->systemLock->Acquire();
+    return ret;
 }
 
-int ExceptionRead(int fp, int size, int fs) {
-    printf("Read: Not Implemented! Trying to read %x\n", fp);
-    return(0);
+int ExceptionRead(int b, int size, int fd) {
+    int ret;
+    kernel->systemLock->Release();
+    if (fd == ConsoleInput) {
+        ret = kernel->currentThread->ReadConsole(b, size);
+    } else {
+        ret = kernel->currentThread->ReadOpenFile(fd, b, size);
+    }
+    kernel->systemLock->Acquire();
+    return(ret);
 }
 
 int ExceptionClose(int fp) {
-    printf("Close: Not Implemented! Trying to close %x\n", fp);
-    return(0); 
+    printf("Close: %x\n", fp);
+    kernel->systemLock->Release();
+    currentThread->CloseOpenFile(fp);
+    kernel->systemLock->Acquire();
+    return 0;
 }
 
 //----------------------------------------------------------------------

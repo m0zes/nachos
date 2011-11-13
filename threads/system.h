@@ -15,11 +15,11 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
-#if defined(CHANGED) && defined(USER_PROGRAM)
+//#if defined(CHANGED) && defined(USER_PROGRAM)
 #include "bitmap.h"
 #include "table.h"
 #include "synchconsole.h"
-#endif
+//#endif
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -38,22 +38,22 @@ extern Scheduler *scheduler;			// the ready list
 extern Interrupt *interrupt;			// interrupt status
 extern Statistics *stats;			// performance metrics
 extern Timer *timer;				// the hardware alarm clock
-#if defined(CHANGED) && defined(USER_PROGRAM)
-extern BitMap *bitmap;
+//#if defined(CHANGED) && defined(USER_PROGRAM)
+extern Bitmap *bitmap;
 extern Lock *systemLock;
-extern Table *threadTable;
+//extern Table *threadTable;
 extern SynchConsole *systemConsole;
 
 
 #define SystemBufferSize (PageSize * 4)
 extern char systemBuffer[SystemBufferSize];
 extern Lock *systemBufferLock;
-#endif
+//#endif
 
-#ifdef USER_PROGRAM
+//#ifdef USER_PROGRAM
 #include "machine.h"
 extern Machine* machine;	// user program memory and registers
-#endif
+//#endif
 
 #ifdef FILESYS_NEEDED 		// FILESYS or FILESYS_STUB 
 #include "filesys.h"

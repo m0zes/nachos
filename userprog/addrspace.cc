@@ -21,6 +21,9 @@
 #include "machine.h"
 #include "noff.h"
 #include "exception.h"
+#include "bitmap.h"
+
+extern Bitmap *bitmap;
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -66,10 +69,10 @@ SwapHeader (NoffHeader *noffH)
 //	only uniprogramming, and we have a single unsegmented page table
 //----------------------------------------------------------------------
 
-//AddrSpace::AddrSpace()
-//{
-//	return;
-//}
+AddrSpace::AddrSpace()
+{
+	return;
+}
 
 //----------------------------------------------------------------------
 // AddrSpace::~AddrSpace
@@ -135,7 +138,7 @@ AddrSpace::Load(char *fileName)
     pageTable = new TranslationEntry[size];
     for (int i = 0; i < size; i++) {
 	pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
-	pageTable[i].physicalPage = kernel->machine->bitmap->FindAndSet();
+	pageTable[i].physicalPage = bitmap->FindAndSet();
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;

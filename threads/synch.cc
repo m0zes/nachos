@@ -137,7 +137,7 @@ void Lock::Release() {}
 #ifdef CHANGED
 Condition::Condition(char* debugName)
 {
-  list = new List<Semaphore>(); //Type not certain
+  list = new List<void*>(); //Type not certain
   name = debugName;
 }
 Condition::~Condition()
@@ -147,7 +147,7 @@ Condition::~Condition()
 void Condition::Wait(Lock* conditionLock)
 {
   Semaphore *s = new Semaphore("condition semaphore", 0);
-  list->Append(*s);
+  list->Append((void*)s);
   conditionLock->Release();
   s->P();
   conditionLock->Acquire();

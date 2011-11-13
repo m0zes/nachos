@@ -24,7 +24,6 @@
 #include "copyright.h"
 #include "utility.h"
 #include "translate.h"
-#include "bitmap.h"
 #include "synch.h"
 
 // Definitions related to the size, and format of user memory
@@ -139,11 +138,7 @@ class Machine {
 
     TranslationEntry *pageTable;
 
-    Bitmap *bitmap;
-
     int pageTableSize;
-    
-    Lock *systemLock;
 
     bool ReadMem(int addr, int size, int* value);
     bool WriteMem(int addr, int size, int value);

@@ -146,6 +146,13 @@ List<T>::RemoveFront()
     return thing;
 }
 
+template <class T>
+T*
+List<T>::Remove()
+{
+    return (this->RemoveFront());
+}
+
 //----------------------------------------------------------------------
 // List<T>::Remove
 //      Remove a specific item from the list.  Must be in the list!

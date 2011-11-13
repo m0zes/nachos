@@ -13,7 +13,7 @@
 
 #include "console.h"
 #include "synch.h"
-#if defined(CHANGED) && defined(USER_PROGRAM)
+//#if defined(CHANGED) && defined(USER_PROGRAM)
 
 // The following class defines a "synchronous" console abstraction.
 // As with other I/O devices, the raw physical console is an asynchronous device --
@@ -36,7 +36,8 @@ class SynchConsole {
     void PutCharDone();
 		
   private:
-    Console *console;		  		// Raw console device
+    ConsoleInput *consolein;		  		// Raw console device
+    ConsoleOutput *consoleout;		  		// Raw console device
     Semaphore *putCharSemaphore;
     Semaphore *getCharSemaphore;
     Lock *putCharLock;
@@ -44,4 +45,4 @@ class SynchConsole {
 };
 
 #endif // SYNCHCONSOLE_H
-#endif
+//#endif

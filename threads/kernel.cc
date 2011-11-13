@@ -98,19 +98,34 @@ Kernel::Initialize()
     scheduler = new Scheduler();	// initialize the ready queue
     alarm = new Alarm(randomSlice);	// start up time slicing
     machine = new Machine(debugUserProg);
-    synchConsoleIn = new SynchConsoleInput(consoleIn); // input from stdin
-    synchConsoleOut = new SynchConsoleOutput(consoleOut); // output to stdout
+    synchConsoleIn = new SynchConsole("stdin", consoleIn, consoleOut); // input from stdin
+    synchConsoleOut = new SynchConsole("stdout",consoleIn, consoleOut); // output to stdout
     synchDisk = new SynchDisk();    //
 #ifdef FILESYS_STUB
     fileSystem = new FileSystem();
 #else
     fileSystem = new FileSystem(formatFlag);
 #endif // FILESYS_STUB
+#ifdef NETWORK
     postOfficeIn = new PostOfficeInput(10);
     postOfficeOut = new PostOfficeOutput(reliability);
+#endif
 
     interrupt->Enable();
 }
+
+//SynchConsoleOutput::SynchConsoleOutput(char* output) {
+//	return;
+//}
+//SynchConsoleOutput::~SynchConsoleOutput() {
+//	return;
+//}
+//SynchConsoleInput::SynchConsoleInput(char* input) {
+//	return;
+//}
+//SynchConsoleInput::~SynchConsoleInput() {
+//	return;
+//}
 
 //----------------------------------------------------------------------
 // Kernel::~Kernel
@@ -127,8 +142,10 @@ Kernel::~Kernel()
     delete synchConsoleOut;
     delete synchDisk;
     delete fileSystem;
+#ifdef NETWORK
     delete postOfficeIn;
     delete postOfficeOut;
+#endif
     delete interrupt;
     
     Exit(0);
@@ -165,18 +182,18 @@ Kernel::ThreadSelfTest() {
    
    LibSelfTest();		// test library routines
    
-   currentThread->SelfTest();	// test thread switching
+   //currentThread->SelfTest();	// test thread switching
    
    				// test semaphore operation
    semaphore = new Semaphore("test", 0);
-   semaphore->SelfTest();
+   //semaphore->SelfTest();
    delete semaphore;
    
    				// test locks, condition variables
 				// using synchronized lists
-   synchList = new SynchList<int>;
-   synchList->SelfTest(9);
-   delete synchList;
+   //synchList = new SynchList<int>;
+   //synchList->SelfTest(9);
+   //delete synchList;
 
 }
 
@@ -203,6 +220,7 @@ Kernel::ConsoleTest() {
 
 }
 
+#ifdef NETWORK
 //----------------------------------------------------------------------
 // Kernel::NetworkTest
 //      Test whether the post office is working. On machines #0 and #1, do:
@@ -261,4 +279,4 @@ Kernel::NetworkTest() {
 
     // Then we're done!
 }
-
+#endif

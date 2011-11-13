@@ -19,6 +19,9 @@
 #include "switch.h"
 //#include "synch.h"
 #include "system.h"
+#include "kernel.h"
+#include "main.h"
+#include "machine.h"
 
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
 					// execution stack, for detecting 
@@ -67,13 +70,18 @@ Thread::Thread(char* threadName, int *i)
     stack = NULL;
     status = JUST_CREATED;
     space = NULL;
-    joinThreads = new List;
+    joinThreads = new List<Thread>;
     joinCondition = new Condition("thread");
     int ret = threadTable->Insert(this);
     id = ret;
     if (i != NULL) {
       *i = ret;
     }
+}
+
+void
+Thread::SelfTest() {
+  return;
 }
 
 bool
@@ -129,9 +137,9 @@ Thread::Thread(char* threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-#ifdef USER_PROGRAM
+//#ifdef USER_PROGRAM
     space = NULL;
-#endif
+//#endif
 }
 
 //----------------------------------------------------------------------
@@ -374,7 +382,7 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }
 
-#ifdef USER_PROGRAM
+//#ifdef USER_PROGRAM
 #include "machine.h"
 
 //----------------------------------------------------------------------
@@ -390,7 +398,7 @@ void
 Thread::SaveUserState()
 {
     for (int i = 0; i < NumTotalRegs; i++)
-	userRegisters[i] = machine->ReadRegister(i);
+	userRegisters[i] = kernel->machine->ReadRegister(i);
 }
 
 //----------------------------------------------------------------------
@@ -406,6 +414,6 @@ void
 Thread::RestoreUserState()
 {
     for (int i = 0; i < NumTotalRegs; i++)
-	machine->WriteRegister(i, userRegisters[i]);
+	kernel->machine->WriteRegister(i, userRegisters[i]);
 }
-#endif
+//#endif

@@ -147,7 +147,7 @@ class Condition {
   private:
     char* name;
 #ifdef CHANGED
-    List<Semaphore>	*list;  //Changed from list of threads
+    List<void*>	*list;  //Changed from list of threads
 #endif
     // plus some other stuff you'll need to define
 };

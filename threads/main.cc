@@ -273,9 +273,11 @@ main(int argc, char **argv)
     if (consoleTestFlag) {
       kernel->ConsoleTest();   // interactive test of the synchronized console
     }
+#ifdef NETWORK
     if (networkTestFlag) {
       kernel->NetworkTest();   // two-machine test of the network
     }
+#endif
 
 #ifndef FILESYS_STUB
     if (removeFileName != NULL) {

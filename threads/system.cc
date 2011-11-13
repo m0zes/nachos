@@ -18,15 +18,15 @@ Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
-#if defined(CHANGED) && defined(USER_PROGRAM)
+//#if defined(CHANGED) && defined(USER_PROGRAM)
 #include "synchconsole.h"
-BitMap *bitmap;
+Bitmap *bitmap;
 Lock *systemLock;
-Table   *threadTable;
+//Table   *threadTable;
 SynchConsole *systemConsole;
 char systemBuffer[SystemBufferSize];
 Lock *systemBufferLock;
-#endif
+//#endif
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
@@ -36,9 +36,9 @@ FileSystem  *fileSystem;
 SynchDisk   *synchDisk;
 #endif
 
-#ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
+//#ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
 Machine *machine;	// user program memory and registers
-#endif
+//#endif
 
 #ifdef NETWORK
 PostOffice *postOffice;
@@ -90,9 +90,9 @@ Initialize(int argc, char **argv)
     char* debugArgs = "";
     bool randomYield = FALSE;
 
-#ifdef USER_PROGRAM
+//#ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
-#endif
+//#endif
 #ifdef FILESYS_NEEDED
     bool format = FALSE;	// format disk
 #endif
@@ -117,10 +117,10 @@ Initialize(int argc, char **argv)
 	    randomYield = TRUE;
 	    argCount = 2;
 	}
-#ifdef USER_PROGRAM
+//#ifdef USER_PROGRAM
 	if (!strcmp(*argv, "-s"))
 	    debugUserProg = TRUE;
-#endif
+//#endif
 #ifdef FILESYS_NEEDED
 	if (!strcmp(*argv, "-f"))
 	    format = TRUE;
@@ -160,12 +160,12 @@ Initialize(int argc, char **argv)
     interrupt->Enable();
     CallOnUserAbort(Cleanup);			// if user hits ctl-C
     
-#if defined(CHANGED) && defined(USER_PROGRAM)
+//#if defined(CHANGED) && defined(USER_PROGRAM)
     machine = new Machine(debugUserProg);	// this must come first
-    bitmap = new BitMap(NumPhysPages);
+    bitmap = new Bitmap(NumPhysPages);
     systemLock = new Lock("systemLock");
     systemBufferLock = new Lock("system buffer"); 
-#endif
+//#endif
 
 #ifdef FILESYS
     synchDisk = new SynchDisk("DISK");
@@ -212,3 +212,6 @@ Cleanup()
     Exit(0);
 }
 
+void DebugInit(char* debugArgs) {
+	return;
+}

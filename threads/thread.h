@@ -39,14 +39,14 @@
 
 #include "copyright.h"
 #include "utility.h"
-#if defined(CHANGED) && defined(USER_PROGRAM)
+//#if defined(CHANGED) && defined(USER_PROGRAM)
 #include "synch.h"
-#endif
+//#endif
 
-#ifdef USER_PROGRAM
+//#ifdef USER_PROGRAM
 #include "machine.h"
 #include "addrspace.h"
-#endif
+//#endif
 
 //Moved this outside of ifdef to try to get to compile
 #include "addrspace.h"
@@ -88,11 +88,6 @@ class Thread {
 
   public:
   
-	void SaveUserState();		// save user-level register state
-    void RestoreUserState();		// restore user-level register state
-
-    AddrSpace *space;			// User code this thread is running.
-  
 	Thread(); //dummy constructor with no parameters
 	bool operator==(const Thread &t);
   
@@ -118,8 +113,8 @@ class Thread {
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
 
-	void SelfTest();
-#if defined(CHANGED) && defined(USER_PROGRAM)
+    void SelfTest();
+//#if defined(CHANGED) && defined(USER_PROGRAM)
     Thread(char* debugName, int *id);
     int Join(Thread *t, Lock *l);
     void Exit(int ev, Lock *l);
@@ -134,17 +129,17 @@ class Thread {
     int ReadConsole(int b, int size);
     int WriteConsole(int b, int size);
     bool TlbFault(int);
-#endif
+//#endif
 
   private:
     // some of the private data for this class is listed above
     
-#if defined(CHANGED) && defined(USER_PROGRAM)
+//#if defined(CHANGED) && defined(USER_PROGRAM)
     int id;
     int exitValue;
-    List      *joinThreads;
+    List<Thread> *joinThreads;
     Condition *joinCondition;
-#endif
+//#endif
     int* stack; 	 		// Bottom of the stack 
 					// NULL if this is the main thread
 					// (If NULL, don't deallocate stack)
@@ -155,7 +150,7 @@ class Thread {
     					// Allocate a stack for thread.
 					// Used internally by Fork()
 
-#ifdef USER_PROGRAM
+//#ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 
 // one for its state while executing user code, one for its state 
 // while executing kernel code.
@@ -167,7 +162,7 @@ class Thread {
     void RestoreUserState();		// restore user-level register state
 
     AddrSpace *space;			// User code this thread is running.
-#endif
+//#endif
 
 
 

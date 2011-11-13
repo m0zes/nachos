@@ -27,6 +27,8 @@
 #include "system.h"
 #include "exception.h"
 
+extern Lock *systemLock;
+
 void WriteChar(char c, int vaddr) {
     int phyAddr;
     currentThread->space->Translate(vaddr, &phyAddr, TRUE);
@@ -77,7 +79,7 @@ int ExceptionAdd(int op1, int op2) {
 void ExceptionExit(int n) {
   printf("Exit(%d)\n", n);
   //currentThread->Exit(n, kernel->machine->systemLock);
-  kernel->machine->systemLock->Release();
+  systemLock->Release();
   currentThread->Finish();
   ASSERTNOTREACHED();
 }
@@ -142,14 +144,14 @@ int ExceptionJoin(int id) {
 
 int ExceptionWrite(int b, int size, int fd) {
     int ret;
-    kernel->machine->systemLock->Release();
+    systemLock->Release();
     //DEBUG('e', "Write(%d, %d, %d)\n", b, size, fd);
     //if (fd == ConsoleOutput) {
     //    ret = currentThread->WriteConsole(b, size);
     //} else {
     //    ret = currentThread->WriteOpenFile(fd, b, size);
     //}
-    kernel->machine->systemLock->Acquire();
+    systemLock->Acquire();
     return(ret);
 }
 
@@ -162,11 +164,11 @@ int ExceptionOpen(int fn) {
         return(0);
     }
     filename[SizeExceptionFilename - 1] = '\0';
-    kernel->machine->systemLock->Release();
+    systemLock->Release();
     // fix this! 
     //ret = currentThread->OpenReadWriteFile(filename);
     ret = 5;
-    kernel->machine->systemLock->Acquire();
+    systemLock->Acquire();
     return(ret);
 }
 

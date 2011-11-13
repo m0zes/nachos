@@ -18,22 +18,23 @@
 #include "alarm.h"
 #include "filesys.h"
 #include "machine.h"
+#include "synchconsole.h"
 
 class PostOfficeInput;
 class PostOfficeOutput;
-class SynchConsoleInput{
-	public:
-		SynchConsoleInput(char* in);
-		~SynchConsoleInput();
-		char GetChar();
-};
-class SynchConsoleOutput{
-	public:
-		SynchConsoleOutput(char* out);
-		~SynchConsoleOutput();
-		void PutChar(char c);
-
-};
+//class SynchConsoleInput : public SynchConsole {
+//	public:
+//		SynchConsoleInput(char* in);
+//		~SynchConsoleInput();
+//		char GetChar();
+//};
+//class SynchConsoleOutput : public SynchConsole {
+//	public:
+//		SynchConsoleOutput(char* out);
+//		~SynchConsoleOutput();
+//		void PutChar(char c);
+//
+//};
 class SynchDisk;
 
 class Kernel {
@@ -63,12 +64,14 @@ class Kernel {
     Statistics *stats;		// performance metrics
     Alarm *alarm;		// the software alarm clock    
     Machine *machine;           // the simulated CPU
-    SynchConsoleInput *synchConsoleIn;
-    SynchConsoleOutput *synchConsoleOut;
+    SynchConsole *synchConsoleIn;
+    SynchConsole *synchConsoleOut;
     SynchDisk *synchDisk;
     FileSystem *fileSystem;     
+#ifdef NETWORK
     PostOfficeInput *postOfficeIn;
     PostOfficeOutput *postOfficeOut;
+#endif
 
     int hostName;               // machine identifier
 

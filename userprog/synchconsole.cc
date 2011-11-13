@@ -16,8 +16,9 @@
 
 #include "copyright.h"
 #include "synchconsole.h"
+#include "callback.h"
 
-#if defined(CHANGED) && defined(USER_PROGRAM)
+//#if defined(CHANGED) && defined(USER_PROGRAM)
 
 static void
 getCharReady(int arg)
@@ -50,7 +51,10 @@ SynchConsole::SynchConsole(char* name, char *in, char *out)
     getCharSemaphore = new Semaphore("synch console get char", 0);
     putCharLock = new Lock("synch console put char lock");
     getCharLock = new Lock("synch console get char lock");
-    console = new Console(in, out, getCharReady, putCharDone, (int) this);
+    //consolein = new ConsoleInput(in, getCharReady, (int) this);
+    consolein = new ConsoleInput(in, (CallBackObj*)getCharReady);
+    //consoleout = new ConsoleOutput(out, putCharDone, (int) this);
+    consoleout = new ConsoleOutput(out, (CallBackObj*)putCharDone);
 }
 
 //----------------------------------------------------------------------
@@ -61,7 +65,8 @@ SynchConsole::SynchConsole(char* name, char *in, char *out)
 
 SynchConsole::~SynchConsole()
 {
-    delete console;
+    delete consolein;
+    delete consoleout;
     delete putCharSemaphore;
     delete getCharSemaphore;
     delete putCharLock;
@@ -73,7 +78,7 @@ SynchConsole::GetChar() {
   char ret;
   getCharLock->Acquire();
   getCharSemaphore->P();
-  ret = console->GetChar();
+  ret = consolein->GetChar();
   getCharLock->Release();
   return(ret);
 }
@@ -86,7 +91,7 @@ SynchConsole::GetCharReady() {
 void
 SynchConsole::PutChar(char ch) {
   putCharLock->Acquire();
-  console->PutChar(ch);
+  consoleout->PutChar(ch);
   putCharSemaphore->P();
   putCharLock->Release();
 }
@@ -95,4 +100,4 @@ void
 SynchConsole::PutCharDone() {
   putCharSemaphore->V();
 }
-#endif
+//#endif

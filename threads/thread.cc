@@ -28,33 +28,33 @@
 					// execution stack, for detecting 
 					// stack overflows
 
-#if defined(CHANGED) && defined(USER_PROGRAM)
-int Thread::Join(Thread *t, Lock * l) {
-  t->joinThreads->Append((void *) this);
-  t->joinCondition->Wait((Lock *) l);
-  return(exitValue);
-}
-
-void Thread::Exit(int ev, Lock *l) {
-  Thread *t;
-  threadTable->Extract(id);
-  while (1) { 
-    t = (Thread *) joinThreads->Remove();
-    if (t == NULL) {  
-      break;
-    }
-    t->exitValue = ev;
-  }
-  delete joinThreads;
-  joinCondition->Broadcast(l);
-  delete joinCondition;
-  delete space;
-}
-
-void Thread::Kill(int which, int type, int ev, Lock *l) {
-  printf("Process %d Killed - Bad Exception %d %d\n", id, which, type);
-  this->Exit(ev, l);
-}
+//#if defined(CHANGED) && defined(USER_PROGRAM)
+//int Thread::Join(Thread *t, Lock * l) {
+//  t->joinThreads->Append((void *) this);
+//  t->joinCondition->Wait((Lock *) l);
+//  return(exitValue);
+//}
+//
+//void Thread::Exit(int ev, Lock *l) {
+//  Thread *t;
+//  threadTable->Extract(id);
+//  while (1) { 
+//    t = (Thread *) joinThreads->Remove();
+//    if (t == NULL) {  
+//      break;
+//    }
+//    t->exitValue = ev;
+//  }
+//  delete joinThreads;
+//  joinCondition->Broadcast(l);
+//  delete joinCondition;
+//  delete space;
+//}
+//
+//void Thread::Kill(int which, int type, int ev, Lock *l) {
+//  printf("Process %d Killed - Bad Exception %d %d\n", id, which, type);
+//  this->Exit(ev, l);
+//}
 
 //----------------------------------------------------------------------
 // Thread::Thread
@@ -64,21 +64,21 @@ void Thread::Kill(int which, int type, int ev, Lock *l) {
 //	"threadName" is an arbitrary string, useful for debugging.
 //----------------------------------------------------------------------
 
-Thread::Thread(char* threadName, int *i)
-{
-    name = threadName;
-    stackTop = NULL;
-    stack = NULL;
-    status = JUST_CREATED;
-    space = NULL;
-    joinThreads = new List<Thread>;
-    joinCondition = new Condition("thread");
-    int ret = threadTable->Insert(this);
-    id = ret;
-    if (i != NULL) {
-      *i = ret;
-    }
-}
+//Thread::Thread(char* threadName, int *i)
+//{
+//    name = threadName;
+//    stackTop = NULL;
+//    stack = NULL;
+//    status = JUST_CREATED;
+//    space = NULL;
+//    joinThreads = new List<Thread>;
+//    joinCondition = new Condition("thread");
+//    int ret = threadTable->Insert(this);
+//    id = ret;
+//    if (i != NULL) {
+//      *i = ret;
+//    }
+//}
 
 void
 Thread::SelfTest() {
@@ -122,7 +122,7 @@ bool
 Thread::TlbFault(int vaddr) { 
   return(space->TlbFault(vaddr));
 }
-#endif
+//#endif
 
 //----------------------------------------------------------------------
 // Thread::Thread

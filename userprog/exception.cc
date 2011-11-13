@@ -26,12 +26,13 @@
 #include "syscall.h"
 #include "system.h"
 #include "exception.h"
-
-extern Lock *systemLock;
+#include "machine.h"
+#include "kernel.h"
 
 void WriteChar(char c, int vaddr) {
     int phyAddr;
-    currentThread->space->Translate(vaddr, &phyAddr, TRUE);
+    //cout << "kernel->currentThread->space = " << (int) kernel->currentThread->space << endl;
+    kernel->currentThread->space->Translate(vaddr, &phyAddr, TRUE);
     kernel->machine->mainMemory[phyAddr] = c;
 }
 
@@ -53,7 +54,7 @@ void WriteBuffer(int length, int vaddr, char* buff) {
 
 char ReadChar(int vaddr) {
    int phyAddr;
-   currentThread->space->Translate(vaddr, &phyAddr, FALSE);
+   kernel->currentThread->space->Translate(vaddr, &phyAddr, FALSE);
    char c = kernel->machine->mainMemory[phyAddr];
    return c;
 }
@@ -79,13 +80,13 @@ int ExceptionAdd(int op1, int op2) {
 void ExceptionExit(int n) {
   printf("Exit(%d)\n", n);
   //currentThread->Exit(n, kernel->machine->systemLock);
-  systemLock->Release();
-  currentThread->Finish();
+  kernel->systemLock->Release();
+  kernel->currentThread->Finish();
   ASSERTNOTREACHED();
 }
 
 void ForkExec(int dummy) { 
-  AddrSpace *space = currentThread->space;
+  AddrSpace *space = kernel->currentThread->space;
 
   //space->InitRegisters();             // set the initial register values
   //space->RestoreState();              // load page table register
@@ -144,14 +145,14 @@ int ExceptionJoin(int id) {
 
 int ExceptionWrite(int b, int size, int fd) {
     int ret;
-    systemLock->Release();
+    kernel->systemLock->Release();
     //DEBUG('e', "Write(%d, %d, %d)\n", b, size, fd);
     //if (fd == ConsoleOutput) {
     //    ret = currentThread->WriteConsole(b, size);
     //} else {
     //    ret = currentThread->WriteOpenFile(fd, b, size);
     //}
-    systemLock->Acquire();
+    kernel->systemLock->Acquire();
     return(ret);
 }
 
@@ -164,11 +165,11 @@ int ExceptionOpen(int fn) {
         return(0);
     }
     filename[SizeExceptionFilename - 1] = '\0';
-    systemLock->Release();
+    kernel->systemLock->Release();
     // fix this! 
     //ret = currentThread->OpenReadWriteFile(filename);
     ret = 5;
-    systemLock->Acquire();
+    kernel->systemLock->Acquire();
     return(ret);
 }
 

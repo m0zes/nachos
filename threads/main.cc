@@ -301,6 +301,7 @@ main(int argc, char **argv)
     if (userProgName != NULL) {
       AddrSpace *space = new AddrSpace;
       ASSERT(space != (AddrSpace *)NULL);
+      kernel->currentThread->space = space;
       if (space->Load(userProgName)) {  // load the program into the space
 	space->Execute();              // run the program
 	ASSERTNOTREACHED();            // Execute never returns

@@ -19,6 +19,8 @@
 #include "filesys.h"
 #include "machine.h"
 #include "synchconsole.h"
+#include "synch.h"
+#include "bitmap.h"
 
 class PostOfficeInput;
 class PostOfficeOutput;
@@ -68,6 +70,8 @@ class Kernel {
     SynchConsole *synchConsoleOut;
     SynchDisk *synchDisk;
     FileSystem *fileSystem;     
+    Bitmap *bitmap;
+    Lock *systemLock;
 #ifdef NETWORK
     PostOfficeInput *postOfficeIn;
     PostOfficeOutput *postOfficeOut;

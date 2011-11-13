@@ -133,12 +133,13 @@ AddrSpace::Load(char *fileName)
 						// at least until we have
 						// virtual memory
 
+    cout << "Asserted " << numPages << " <= " << NumPhysPages << endl;
     //DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
 
     pageTable = new TranslationEntry[size];
     for (int i = 0; i < size; i++) {
 	pageTable[i].virtualPage = i;	// for now, virt page # = phys page #
-	pageTable[i].physicalPage = bitmap->FindAndSet();
+	pageTable[i].physicalPage = kernel->bitmap->FindAndSet();
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;

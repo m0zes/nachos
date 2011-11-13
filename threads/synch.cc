@@ -29,6 +29,9 @@
 #endif
 #include "list.h"
 #include "thread.h"
+#include "kernel.h"
+#include "machine.h"
+#include "main.h"
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
 // 	Initialize a semaphore, so that it can be used for synchronization.
@@ -68,16 +71,16 @@ Semaphore::~Semaphore()
 void
 Semaphore::P()
 {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);	// disable interrupts
+    IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);	// disable interrupts
     
     while (value == 0) { 			// semaphore not available
 	queue->Append((void *)currentThread);	// so go to sleep
-	currentThread->Sleep();
+	kernel->currentThread->Sleep();
     } 
     value--; 					// semaphore available, 
 						// consume its value
     
-    (void) interrupt->SetLevel(oldLevel);	// re-enable interrupts
+    (void) kernel->interrupt->SetLevel(oldLevel);	// re-enable interrupts
 }
 
 //----------------------------------------------------------------------
@@ -92,13 +95,13 @@ void
 Semaphore::V()
 {
     Thread *thread;
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);
 
     thread = (Thread *)queue->Remove();
     if (thread != NULL)	   // make thread ready, consuming the V immediately
-	scheduler->ReadyToRun(thread);
+	kernel->scheduler->ReadyToRun(thread);
     value++;
-    (void) interrupt->SetLevel(oldLevel);
+    (void) kernel->interrupt->SetLevel(oldLevel);
 }
 
 // Dummy functions -- so we can compile our later assignments 

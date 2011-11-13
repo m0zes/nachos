@@ -101,6 +101,8 @@ Kernel::Initialize()
     machine = new Machine(debugUserProg);
     synchConsoleIn = new SynchConsole("stdin", consoleIn, consoleOut); // input from stdin
     synchConsoleOut = new SynchConsole("stdout",consoleIn, consoleOut); // output to stdout
+    systemLock = new Lock("systemLock");
+    bitmap = new Bitmap(NumPhysPages);
     synchDisk = new SynchDisk();    //
 #ifdef FILESYS_STUB
     fileSystem = new FileSystem();

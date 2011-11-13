@@ -22,6 +22,7 @@
 #include "kernel.h"
 #include "main.h"
 #include "machine.h"
+#include "stdio.h"
 
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
 					// execution stack, for detecting 
@@ -158,7 +159,7 @@ Thread::~Thread()
 {
     //DEBUG('t', "Deleting thread \"%s\"\n", name);
 
-    ASSERT(this != currentThread);
+    ASSERT((int)this != (int)currentThread);
     if (stack != NULL)
 	DeallocBoundedArray((char *) stack, StackSize * sizeof(int));
 }
@@ -191,10 +192,10 @@ Thread::Fork(VoidFunctionPtr func, int arg)
     
     StackAllocate(func, arg);
 
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    scheduler->ReadyToRun(this);	// ReadyToRun assumes that interrupts 
+    IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);
+    kernel->scheduler->ReadyToRun(this);	// ReadyToRun assumes that kernel->interrupts 
 					// are disabled!
-    (void) interrupt->SetLevel(oldLevel);
+    (void) kernel->interrupt->SetLevel(oldLevel);
 }    
 
 //----------------------------------------------------------------------
@@ -234,7 +235,7 @@ Thread::CheckOverflow()
 //	so that Scheduler::Run() will call the destructor, once we're
 //	running in the context of a different thread.
 //
-// 	NOTE: we disable interrupts, so that we don't get a time slice 
+// 	NOTE: we disable kernel->interrupts, so that we don't get a time slice 
 //	between setting threadToBeDestroyed, and going to sleep.
 //----------------------------------------------------------------------
 
@@ -242,12 +243,13 @@ Thread::CheckOverflow()
 void
 Thread::Finish ()
 {
-    (void) interrupt->SetLevel(IntOff);		
-    ASSERT(this == currentThread);
+    (void) kernel->interrupt->SetLevel(IntOff);		
+    printf("%d == %d\n", (int)this, (int)kernel->currentThread);
+    ASSERT((int)this == (int)kernel->currentThread);
     
     //DEBUG('t', "Finishing thread \"%s\"\n", getName());
     
-    threadToBeDestroyed = currentThread;
+    threadToBeDestroyed = kernel->currentThread;
     Sleep();					// invokes SWITCH
     // not reached
 }
@@ -262,10 +264,10 @@ Thread::Finish ()
 //	Otherwise returns when the thread eventually works its way
 //	to the front of the ready list and gets re-scheduled.
 //
-//	NOTE: we disable interrupts, so that looking at the thread
+//	NOTE: we disable kernel->interrupts, so that looking at the thread
 //	on the front of the ready list, and switching to it, can be done
-//	atomically.  On return, we re-set the interrupt level to its
-//	original state, in case we are called with interrupts disabled. 
+//	atomically.  On return, we re-set the kernel->interrupt level to its
+//	original state, in case we are called with kernel->interrupts disabled. 
 //
 // 	Similar to Thread::Sleep(), but a little different.
 //----------------------------------------------------------------------
@@ -274,18 +276,18 @@ void
 Thread::Yield ()
 {
     Thread *nextThread;
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);
     
-    ASSERT(this == currentThread);
+    ASSERT((int)this == (int)kernel->currentThread);
     
     //DEBUG('t', "Yielding thread \"%s\"\n", getName());
     
-    nextThread = scheduler->FindNextToRun();
+    nextThread = kernel->scheduler->FindNextToRun();
     if (nextThread != NULL) {
-	scheduler->ReadyToRun(this);
-	scheduler->Run(nextThread, true);
+	kernel->scheduler->ReadyToRun(this);
+	kernel->scheduler->Run(nextThread, true);
     }
-    (void) interrupt->SetLevel(oldLevel);
+    (void) kernel->interrupt->SetLevel(oldLevel);
 }
 
 //----------------------------------------------------------------------
@@ -297,13 +299,13 @@ Thread::Yield ()
 //
 //	NOTE: if there are no threads on the ready queue, that means
 //	we have no thread to run.  "Interrupt::Idle" is called
-//	to signify that we should idle the CPU until the next I/O interrupt
+//	to signify that we should idle the CPU until the next I/O kernel->interrupt
 //	occurs (the only thing that could cause a thread to become
 //	ready to run).
 //
-//	NOTE: we assume interrupts are already disabled, because it
+//	NOTE: we assume kernel->interrupts are already disabled, because it
 //	is called from the synchronization routines which must
-//	disable interrupts for atomicity.   We need interrupts off 
+//	disable kernel->interrupts for atomicity.   We need kernel->interrupts off 
 //	so that there can't be a time slice between pulling the first thread
 //	off the ready list, and switching to it.
 //----------------------------------------------------------------------
@@ -312,16 +314,16 @@ Thread::Sleep ()
 {
     Thread *nextThread;
     
-    ASSERT(this == currentThread);
-    ASSERT(interrupt->getLevel() == IntOff);
+    ASSERT((int)this == (int)kernel->currentThread);
+    ASSERT(kernel->interrupt->getLevel() == IntOff);
     
     //DEBUG('t', "Sleeping thread \"%s\"\n", getName());
 
     status = BLOCKED;
-    while ((nextThread = scheduler->FindNextToRun()) == NULL)
-	interrupt->Idle();	// no one to run, wait for an interrupt
+    while ((nextThread = kernel->scheduler->FindNextToRun()) == NULL)
+	kernel->interrupt->Idle();	// no one to run, wait for an kernel->interrupt
         
-    scheduler->Run(nextThread, true); // returns when we've been signalled
+    kernel->scheduler->Run(nextThread, true); // returns when we've been signalled
 }
 
 //----------------------------------------------------------------------
@@ -332,15 +334,15 @@ Thread::Sleep ()
 //	member function.
 //----------------------------------------------------------------------
 
-static void ThreadFinish()    { currentThread->Finish(); }
-static void InterruptEnable() { interrupt->Enable(); }
+static void ThreadFinish()    { kernel->currentThread->Finish(); }
+static void InterruptEnable() { kernel->interrupt->Enable(); }
 void ThreadPrint(int arg){ Thread *t = (Thread *)arg; t->Print(); }
 
 //----------------------------------------------------------------------
 // Thread::StackAllocate
 //	Allocate and initialize an execution stack.  The stack is
 //	initialized with an initial stack frame for ThreadRoot, which:
-//		enables interrupts
+//		enables kernel->interrupts
 //		calls (*func)(arg)
 //		calls Thread::Finish
 //

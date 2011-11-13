@@ -51,7 +51,7 @@ class Semaphore {
     void V();	 // they are both *atomic*
 	void SelfTest();
 	
-	bool operator==(const Semaphore &s); //added
+	//bool operator==(const Semaphore &s); //added
 	
 #if defined(CHANGED)
     void Print();

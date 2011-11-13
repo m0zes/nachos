@@ -78,7 +78,7 @@ class Interrupt {
     Interrupt();		// initialize the interrupt simulation
     ~Interrupt();		// de-allocate data structures
     
-    IntStatus SetLevel(IntStatus level);
+    IntStatus SetLevel(IntStatus l);
     				// Disable or enable interrupts 
 				// and return previous setting.
 

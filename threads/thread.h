@@ -89,7 +89,7 @@ class Thread {
   public:
   
 	Thread(); //dummy constructor with no parameters
-	bool operator==(const Thread &t);
+	//bool operator==(const Thread &t);
   
   
     Thread(char* debugName);		// initialize a Thread 

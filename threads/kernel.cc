@@ -92,7 +92,6 @@ Kernel::Initialize()
     // object to save its state. 
     currentThread = new Thread("main");		
     currentThread->setStatus(RUNNING);
-    cout << "Initializing the current thread " << (int)currentThread << endl;
 
     stats = new Statistics();		// collect statistics
     interrupt = new Interrupt;		// start up interrupt handling

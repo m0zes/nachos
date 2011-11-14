@@ -244,7 +244,6 @@ void
 Thread::Finish ()
 {
     (void) kernel->interrupt->SetLevel(IntOff);		
-    printf("%d == %d\n", (int)this, (int)kernel->currentThread);
     ASSERT((int)this == (int)kernel->currentThread);
     
     //DEBUG('t', "Finishing thread \"%s\"\n", getName());

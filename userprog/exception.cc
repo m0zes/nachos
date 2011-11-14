@@ -113,6 +113,7 @@ ExceptionExec(int fn) {
   filename[SizeExceptionFilename - 1] = '\0';
   OpenFile *executable = kernel->fileSystem->Open(filename);
   AddrSpace *space;
+  cout << executable << " execute" <<endl;
   if (executable == NULL) { 
     printf("Exec: Unable to open file %s\n", filename);
     return(0);
@@ -303,6 +304,11 @@ ExceptionHandler(ExceptionType which)
                     ExceptionExit(kernel->machine->ReadRegister(4));
 		    return;
                     break;
+		case SC_Exec:
+		    {
+			return;
+			break;	
+		    }
 
                 case SC_Create:
 		    {

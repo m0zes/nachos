@@ -102,7 +102,7 @@ AddrSpace::Load(char *fileName)
     NoffHeader noffH;
     unsigned int size;
 
-    if (executable == NULL) {
+    if ((int)executable == (int)NULL) {
 	cerr << "Unable to open file " << fileName << "\n";
 	return FALSE;
     }
@@ -312,7 +312,10 @@ void AddrSpace::CloseOpenFile(int fd)
 //----------------------------------------------------------------------
 int AddrSpace::ReadConsole(int b, int size)
 {
-        return 0;
+        char *string = new char[size];
+	cin >> string;
+	WriteString(b, string, size);
+	return size;
 }
 
 //----------------------------------------------------------------------
@@ -320,7 +323,10 @@ int AddrSpace::ReadConsole(int b, int size)
 //----------------------------------------------------------------------
 int AddrSpace::WriteConsole(int b, int size)
 {
-        return 0;
+	char *string = new char[size];
+	ReadString(b, string, size);
+	cout << string;
+        return size;
 }
 
 //----------------------------------------------------------------------
